@@ -1,8 +1,20 @@
 #pragma once
-#include <string>
 
 class TestClass
 {
 public:
-    std::string sayHello(const std::string& name) const;
+    TestClass(const char* name);
+    ~TestClass();
+
+    TestClass(const TestClass&);
+    TestClass& operator=(const TestClass&);
+
+    TestClass(TestClass&&);
+    TestClass& operator=(TestClass&&);
+
+    void setName(const char* name);
+
+    void sayHello() const;
+protected:
+    char* name_;
 };
