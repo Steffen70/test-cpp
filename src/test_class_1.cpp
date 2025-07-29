@@ -1,8 +1,8 @@
-#include <test_cpp/test_class.hpp>
+#include <test_cpp/test_class_1.hpp>
 #include <iostream>
 #include <fmt/core.h>
 
-TestClass::TestClass(const char* name)
+TestClass1::TestClass1(const char* name)
 {
     if (name)
     {
@@ -15,23 +15,23 @@ TestClass::TestClass(const char* name)
         name_[0] = '\0';
     }
 
-    std::cout << "TestClass created" << '\n';
+    std::cout << "TestClass1 created" << '\n';
 }
 
-TestClass::~TestClass() noexcept
+TestClass1::~TestClass1() noexcept
 {
     delete[] name_;
-    std::cout << "TestClass destroyed" << '\n';
+    std::cout << "TestClass1 destroyed" << '\n';
 }
 
-TestClass::TestClass(const TestClass& other)
+TestClass1::TestClass1(const TestClass1& other)
 {
     name_ = new char[std::strlen(other.name_) + 1];
     std::strcpy(name_, other.name_);
-    std::cout << "TestClass copied" << '\n';
+    std::cout << "TestClass1 copied" << '\n';
 }
 
-TestClass& TestClass::operator=(const TestClass& other)
+TestClass1& TestClass1::operator=(const TestClass1& other)
 {
     if (this == &other)
         return *this;
@@ -40,18 +40,18 @@ TestClass& TestClass::operator=(const TestClass& other)
     name_ = new char[std::strlen(other.name_) + 1];
     std::strcpy(name_, other.name_);
 
-    std::cout << "TestClass assigned" << '\n';
+    std::cout << "TestClass1 assigned" << '\n';
     return *this;
 }
 
-TestClass::TestClass(TestClass&& other) noexcept
+TestClass1::TestClass1(TestClass1&& other) noexcept
 {
     this->name_ = other.name_;
     other.name_ = nullptr;
-    std::cout << "TestClass moved" << '\n';
+    std::cout << "TestClass1 moved" << '\n';
 }
 
-TestClass& TestClass::operator=(TestClass&& other) noexcept
+TestClass1& TestClass1::operator=(TestClass1&& other) noexcept
 {
     if (this == &other)
         return *this;
@@ -59,18 +59,18 @@ TestClass& TestClass::operator=(TestClass&& other) noexcept
     delete[] name_;
     name_ = other.name_;
     other.name_ = nullptr;
-    std::cout << "TestClass moved assigned" << '\n';
+    std::cout << "TestClass1 moved assigned" << '\n';
     return *this;
 }
 
-void TestClass::setName(const char* name)
+void TestClass1::setName(const char* name)
 {
     delete[] name_;
     name_ = new char[std::strlen(name) + 1];
     std::strcpy(name_, name);
 }
 
-void TestClass::sayHello() const
+void TestClass1::sayHello() const
 {
     std::cout << fmt::format("Hello, {}!", name_ ? name_ : "(null)") << '\n';
 }
