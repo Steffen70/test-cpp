@@ -18,7 +18,7 @@ TestClass::TestClass(const char* name)
     std::cout << "TestClass created" << '\n';
 }
 
-TestClass::~TestClass()
+TestClass::~TestClass() noexcept
 {
     delete[] name_;
     std::cout << "TestClass destroyed" << '\n';
@@ -34,7 +34,7 @@ TestClass::TestClass(const TestClass& other)
 TestClass& TestClass::operator=(const TestClass& other)
 {
     if (this == &other)
-        throw std::runtime_error("Cannot assign to self");
+        return *this;
 
     delete[] name_; // Free old name_
     name_ = new char[std::strlen(other.name_) + 1];
@@ -44,17 +44,17 @@ TestClass& TestClass::operator=(const TestClass& other)
     return *this;
 }
 
-TestClass::TestClass(TestClass&& other)
+TestClass::TestClass(TestClass&& other) noexcept
 {
     this->name_ = other.name_;
     other.name_ = nullptr;
     std::cout << "TestClass moved" << '\n';
 }
 
-TestClass& TestClass::operator=(TestClass&& other)
+TestClass& TestClass::operator=(TestClass&& other) noexcept
 {
     if (this == &other)
-        throw std::runtime_error("Cannot assign to self");
+        return *this;
 
     delete[] name_;
     name_ = other.name_;

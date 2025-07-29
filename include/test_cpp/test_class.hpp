@@ -3,14 +3,14 @@
 class TestClass
 {
 public:
-    TestClass(const char* name);
-    ~TestClass();
+    explicit TestClass(const char* name);
+    ~TestClass() noexcept;
 
     TestClass(const TestClass&);
     TestClass& operator=(const TestClass&);
 
-    TestClass(TestClass&&);
-    TestClass& operator=(TestClass&&);
+    TestClass(TestClass&&) noexcept;
+    TestClass& operator=(TestClass&&) noexcept;
 
     void setName(const char* name);
 
