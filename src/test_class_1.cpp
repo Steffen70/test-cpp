@@ -1,8 +1,9 @@
 #include <test_cpp/test_class_1.hpp>
 #include <iostream>
+#include <utility>
 #include <fmt/core.h>
 
-TestClass1::TestClass1(const char* name)
+TestClass1::TestClass1(const char* name) : name_(nullptr)
 {
     setName(name);
     std::cout << "TestClass1 created" << '\n';
@@ -32,12 +33,10 @@ TestClass1& TestClass1::operator=(TestClass1 other)
 }
 
 void TestClass1::moveFrom(TestClass1& other) noexcept {
-    // free existing resource
+    // Free existing resource
     delete[] name_;
-    // steal pointer
-    name_ = other.name_;
-    // nullify moved-from object
-    other.name_ = nullptr;
+    // Steal and nullify in one line
+    name_ = std::exchange(other.name_, nullptr);
 }
 
 TestClass1::TestClass1(TestClass1&& other) noexcept : name_(nullptr)
@@ -58,7 +57,7 @@ TestClass1& TestClass1::operator=(TestClass1&& other) noexcept
 
 void TestClass1::setName(const char* name)
 {
-    // Freeing a nullptr is safe and does nothing.
+    // Freeing a nullptr is safe and does nothing
     delete[] name_;
     if (name)
     {

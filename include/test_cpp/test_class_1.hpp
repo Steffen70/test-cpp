@@ -22,5 +22,5 @@ protected:
     void moveFrom(TestClass1& other) noexcept;
 
 private:
-    char* name_ = nullptr;
+    char* name_;
 };
