@@ -19,5 +19,8 @@ public:
 protected:
     explicit TestClass1(const char* name);
 
-    char* name_;
+    void moveFrom(TestClass1& other) noexcept;
+
+private:
+    char* name_ = nullptr;
 };

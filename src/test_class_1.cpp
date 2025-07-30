@@ -4,17 +4,7 @@
 
 TestClass1::TestClass1(const char* name)
 {
-    if (name)
-    {
-        name_ = new char[std::strlen(name) + 1];
-        std::strcpy(name_, name);
-    }
-    else
-    {
-        name_ = new char[1];
-        name_[0] = '\0';
-    }
-
+    setName(name);
     std::cout << "TestClass1 created" << '\n';
 }
 
@@ -36,18 +26,23 @@ TestClass1::TestClass1(const TestClass1& other) : TestClass1(other.name_)
 
 TestClass1& TestClass1::operator=(TestClass1 other)
 {
-    if (this == &other)
-        return *this;
-
     std::swap(this->name_, other.name_);
     std::cout << "TestClass1 assigned" << '\n';
     return *this;
 }
 
-TestClass1::TestClass1(TestClass1&& other) noexcept
-{
-    this->name_ = other.name_;
+void TestClass1::moveFrom(TestClass1& other) noexcept {
+    // free existing resource
+    delete[] name_;
+    // steal pointer
+    name_ = other.name_;
+    // nullify moved-from object
     other.name_ = nullptr;
+}
+
+TestClass1::TestClass1(TestClass1&& other) noexcept : name_(nullptr)
+{
+    moveFrom(other);
     std::cout << "TestClass1 moved" << '\n';
 }
 
@@ -56,18 +51,25 @@ TestClass1& TestClass1::operator=(TestClass1&& other) noexcept
     if (this == &other)
         return *this;
 
-    delete[] name_;
-    name_ = other.name_;
-    other.name_ = nullptr;
+    moveFrom(other);
     std::cout << "TestClass1 moved assigned" << '\n';
     return *this;
 }
 
 void TestClass1::setName(const char* name)
 {
+    // Freeing a nullptr is safe and does nothing.
     delete[] name_;
-    name_ = new char[std::strlen(name) + 1];
-    std::strcpy(name_, name);
+    if (name)
+    {
+        name_ = new char[std::strlen(name) + 1];
+        std::strcpy(name_, name);
+    }
+    else
+    {
+        name_ = new char[1];
+        name_[0] = '\0';
+    }
 }
 
 void TestClass1::sayHello() const
