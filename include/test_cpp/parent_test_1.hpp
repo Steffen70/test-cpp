@@ -4,7 +4,9 @@
 class ParentTest1 {
 public:
     // No need to write ctor/dtor/assignment explicitly if only members are well-behaved
-    explicit ParentTest1(TestClass1 member);
+    explicit ParentTest1(const TestClass1& member);
+
+    explicit ParentTest1(TestClass1&& member) noexcept;
 
     void sayHello() const;
 private:

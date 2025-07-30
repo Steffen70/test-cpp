@@ -63,11 +63,20 @@ void test()
     // delete test2Ptr;
     // delete test9Ptr;
 
+    // Create ParentTest1 instance parent1 by copying *test2Ptr into its member (copy semantics)
     const ParentTest1 parent1(*test2Ptr);
+    test2Ptr->sayHello();
+    // Delete heap-allocated object test2Ptr after parent1 has made its copy
     delete test2Ptr;
-    const ParentTest1 parent2(*test9Ptr);
+    // Create ParentTest1 instance parent2 by moving *test9Ptr into its member (move semantics)
+    const ParentTest1 parent2(std::move(*test9Ptr));
+    test9Ptr->sayHello();
+    test9Ptr->setName("Bern");
+    test9Ptr->sayHello();
+    // Delete heap-allocated object test9Ptr after moving from it
     delete test9Ptr;
 
+    // parent1 and parent2 have their own independent lifetimes and resources
     parent1.sayHello();
     parent2.sayHello();
 }
