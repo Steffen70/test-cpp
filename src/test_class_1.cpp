@@ -18,28 +18,28 @@ TestClass1::TestClass1(const char* name)
     std::cout << "TestClass1 created" << '\n';
 }
 
+TestClass1 TestClass1::createFromName(const char* name)
+{
+    return TestClass1(name);
+}
+
 TestClass1::~TestClass1() noexcept
 {
     delete[] name_;
     std::cout << "TestClass1 destroyed" << '\n';
 }
 
-TestClass1::TestClass1(const TestClass1& other)
+TestClass1::TestClass1(const TestClass1& other) : TestClass1(other.name_)
 {
-    name_ = new char[std::strlen(other.name_) + 1];
-    std::strcpy(name_, other.name_);
     std::cout << "TestClass1 copied" << '\n';
 }
 
-TestClass1& TestClass1::operator=(const TestClass1& other)
+TestClass1& TestClass1::operator=(TestClass1 other)
 {
     if (this == &other)
         return *this;
 
-    delete[] name_; // Free old name_
-    name_ = new char[std::strlen(other.name_) + 1];
-    std::strcpy(name_, other.name_);
-
+    std::swap(this->name_, other.name_);
     std::cout << "TestClass1 assigned" << '\n';
     return *this;
 }
