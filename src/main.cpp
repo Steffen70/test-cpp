@@ -10,22 +10,27 @@ struct TestReturnValue
 {
     ParentTest1* heapParents;
     ParentTest1** parentPtrs;
-    void(ParentTest1::* sayHelloPtr)() const;
 };
 
 TestReturnValue test();
 
+template <typename TIn>
+void say_hello(TIn* inputPtr)
+{
+    inputPtr->sayHello();
+}
+
 int main(int argc, char** argv)
 {
     TestReturnValue (* testPtr)() = &test;
-    const auto [heapParents, parentPtrs, sayHelloPtr] = (*testPtr)();
+    const auto [heapParents, parentPtrs] = (*testPtr)();
 
-    // Confirm updated pointer values and sayHello from heap-constructed objects
+    // Confirm updated pointer values and say_hello from heap-constructed objects
     for (std::size_t i = 0; parentPtrs[i] != nullptr; ++i)
     {
         const auto parentPtr = parentPtrs[i];
         std::cout << fmt::format("Heap parentPtr points to {}\n", fmt::ptr(parentPtr));
-        (parentPtr->*sayHelloPtr)();
+        say_hello(parentPtr);
     }
 
     // delete[] heapParents;
@@ -102,7 +107,8 @@ TestReturnValue test()
     ParentTest1 parent2(std::move(*test9Ptr));
     test9Ptr->sayHello();
     test9Ptr->setName("Bern");
-    test9Ptr->sayHello();
+    // Use the generic say_hello function to call the member function of *test9Ptr
+    say_hello(test9Ptr);
     // Delete heap-allocated object test9Ptr after stealing the members from it
     delete test9Ptr;
 
@@ -146,6 +152,5 @@ TestReturnValue test()
     return {
         .heapParents = heapParents,
         .parentPtrs = parentPtrs2,
-        .sayHelloPtr = sayHelloPtr
     };
 }
