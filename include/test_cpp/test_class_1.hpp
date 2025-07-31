@@ -12,6 +12,8 @@ public:
     TestClass1(TestClass1&&) noexcept;
     TestClass1& operator=(TestClass1&&) noexcept;
 
+    explicit operator bool() const;
+
     void setName(const char* namePtr);
 
     void sayHello() const;

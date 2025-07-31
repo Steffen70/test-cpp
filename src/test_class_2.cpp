@@ -14,5 +14,5 @@ void TestClass2::setName(const char* namePtr)
 
 void TestClass2::sayHello() const
 {
-    std::cout << fmt::format("Hello, {}!", !name_.empty() ? name_ : "(null)") << '\n';
+    std::cout << fmt::format("Hello from {}!", !name_.empty() ? name_ : "(null)") << '\n';
 }

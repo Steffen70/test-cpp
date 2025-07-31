@@ -106,9 +106,10 @@ TestReturnValue test()
     // Create ParentTest1 instance parent2 by moving *test9Ptr into its member (move semantics)
     ParentTest1 parent2(std::move(*test9Ptr));
     test9Ptr->sayHello();
-    test9Ptr->setName("Bern");
+    test9Ptr->setName("Tokyo");
     // Use the generic say_hello function to call the member function of *test9Ptr
     say_hello(test9Ptr);
+    std::cout << fmt::format("Do I like *test9Ptr? {}\n", static_cast<bool>(*test9Ptr));
     // Delete heap-allocated object test9Ptr after stealing the members from it
     delete test9Ptr;
 

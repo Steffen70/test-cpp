@@ -59,5 +59,5 @@ void TestClass3::setName(const char* namePtr)
 
 void TestClass3::sayHello() const
 {
-    std::cout << fmt::format("Hello, {}!", name_[0] != '\0' ? name_ : "(null)") << '\n';
+    std::cout << fmt::format("Hello from {}!", name_[0] != '\0' ? name_ : "(null)") << '\n';
 }
