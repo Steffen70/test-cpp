@@ -3,43 +3,43 @@
 #include <utility>
 #include <fmt/core.h>
 
-TestClass1::TestClass1(const char* name) : name_(nullptr)
+TestClass1::TestClass1(const char* namePtr) : namePtr_(nullptr)
 {
-    setName(name);
+    setName(namePtr);
     std::cout << "TestClass1 created" << '\n';
 }
 
-TestClass1 TestClass1::createFromName(const char* name)
+TestClass1 TestClass1::createFromName(const char* namePtr)
 {
-    return TestClass1(name);
+    return TestClass1(namePtr);
 }
 
 TestClass1::~TestClass1() noexcept
 {
-    delete[] name_;
+    delete[] namePtr_;
     std::cout << "TestClass1 destroyed" << '\n';
 }
 
-TestClass1::TestClass1(const TestClass1& other) : TestClass1(other.name_)
+TestClass1::TestClass1(const TestClass1& other) : TestClass1(other.namePtr_)
 {
     std::cout << "TestClass1 copied" << '\n';
 }
 
 TestClass1& TestClass1::operator=(TestClass1 other)
 {
-    std::swap(this->name_, other.name_);
+    std::swap(this->namePtr_, other.namePtr_);
     std::cout << "TestClass1 assigned" << '\n';
     return *this;
 }
 
 void TestClass1::moveFrom(TestClass1& other) noexcept {
     // Free existing resource
-    delete[] name_;
+    delete[] namePtr_;
     // Steal and nullify in one line
-    name_ = std::exchange(other.name_, nullptr);
+    namePtr_ = std::exchange(other.namePtr_, nullptr);
 }
 
-TestClass1::TestClass1(TestClass1&& other) noexcept : name_(nullptr)
+TestClass1::TestClass1(TestClass1&& other) noexcept : namePtr_(nullptr)
 {
     moveFrom(other);
     std::cout << "TestClass1 moved" << '\n';
@@ -55,23 +55,23 @@ TestClass1& TestClass1::operator=(TestClass1&& other) noexcept
     return *this;
 }
 
-void TestClass1::setName(const char* name)
+void TestClass1::setName(const char* namePtr)
 {
     // Freeing a nullptr is safe and does nothing
-    delete[] name_;
-    if (name)
+    delete[] namePtr_;
+    if (namePtr)
     {
-        name_ = new char[std::strlen(name) + 1];
-        std::strcpy(name_, name);
+        namePtr_ = new char[std::strlen(namePtr) + 1];
+        std::strcpy(namePtr_, namePtr);
     }
     else
     {
-        name_ = new char[1];
-        name_[0] = '\0';
+        namePtr_ = new char[1];
+        namePtr_[0] = '\0';
     }
 }
 
 void TestClass1::sayHello() const
 {
-    std::cout << fmt::format("Hello, {}!", name_ ? name_ : "(null)") << '\n';
+    std::cout << fmt::format("Hello, {}!", namePtr_ ? namePtr_ : "(null)") << '\n';
 }

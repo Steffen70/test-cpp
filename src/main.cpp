@@ -1,19 +1,49 @@
 #include <test_cpp/test_class_1.hpp>
 #include <test_cpp/test_class_2.hpp>
 #include <test_cpp/test_class_3.hpp>
+#include <test_cpp/parent_test_1.hpp>
+#include <iostream>
 #include <utility>
+#include <fmt/format.h>
 
-#include "test_cpp/parent_test_1.hpp"
+struct TestReturnValue
+{
+    ParentTest1* heapParents;
+    ParentTest1** parentPtrs;
+    void(ParentTest1::* sayHelloPtr)() const;
+};
 
-void test();
+TestReturnValue test();
 
 int main(int argc, char** argv)
 {
-    test();
+    TestReturnValue (* testPtr)() = &test;
+    const auto [heapParents, parentPtrs, sayHelloPtr] = (*testPtr)();
+
+    // Confirm updated pointer values and sayHello from heap-constructed objects
+    for (std::size_t i = 0; parentPtrs[i] != nullptr; ++i)
+    {
+        const auto parentPtr = parentPtrs[i];
+        std::cout << fmt::format("Heap parentPtr points to {}\n", fmt::ptr(parentPtr));
+        (parentPtr->*sayHelloPtr)();
+    }
+
+    // delete[] heapParents;
+
+    // Manually destroy each ParentTest1 instance (since we used placement new)
+    for (std::size_t i = 0; parentPtrs[i] != nullptr; ++i)
+        heapParents[i].~ParentTest1();
+
+    // Free pointer list allocated with new[]
+    delete[] parentPtrs;
+
+    // Release the raw memory allocated with malloc
+    std::free(heapParents);
+
     return 0;
 }
 
-void test()
+TestReturnValue test()
 {
     // Create TestClass1 instance via factory method (on stack)
     auto test1 = TestClass1::createFromName("World");
@@ -64,19 +94,58 @@ void test()
     // delete test9Ptr;
 
     // Create ParentTest1 instance parent1 by copying *test2Ptr into its member (copy semantics)
-    const ParentTest1 parent1(*test2Ptr);
+    ParentTest1 parent1(*test2Ptr);
     test2Ptr->sayHello();
     // Delete heap-allocated object test2Ptr after parent1 has made its copy
     delete test2Ptr;
     // Create ParentTest1 instance parent2 by moving *test9Ptr into its member (move semantics)
-    const ParentTest1 parent2(std::move(*test9Ptr));
+    ParentTest1 parent2(std::move(*test9Ptr));
     test9Ptr->sayHello();
     test9Ptr->setName("Bern");
     test9Ptr->sayHello();
-    // Delete heap-allocated object test9Ptr after moving from it
+    // Delete heap-allocated object test9Ptr after stealing the members from it
     delete test9Ptr;
 
     // parent1 and parent2 have their own independent lifetimes and resources
-    parent1.sayHello();
-    parent2.sayHello();
+    // parent1.sayHello();
+    void (ParentTest1::* sayHelloPtr)() const = &ParentTest1::sayHello;
+    // (parent2.*sayHelloPtr)();
+
+    // Create pointer array to stack-allocated ParentTest1 instances
+    ParentTest1* parentPtrs1[] = { &parent1, &parent2 };
+    for (const ParentTest1* parentPtr : parentPtrs1)
+        // Calls sayHello via pointer-to-member
+        (parentPtr->*sayHelloPtr)();
+
+    // Create heap-allocated array of ParentTest1 pointers (ending with nullptr sentinel)
+    auto** parentPtrs2 = new  ParentTest1*[]{&parent1, &parent2, nullptr};
+
+    // Iterate over stack-based instances using heap-allocated pointer list
+    for (std::size_t i = 0; parentPtrs2[i] != nullptr; ++i)
+    {
+        const auto parentPtr = parentPtrs2[i];
+        std::cout << fmt::format("Stack parentPtr points to {}\n", fmt::ptr(parentPtr));
+        (parentPtr->*sayHelloPtr)();
+    }
+
+    // Count valid (non-null) pointers
+    std::size_t parentCount = 0;
+    while (parentPtrs2[parentCount] != nullptr) ++parentCount;
+
+    // Allocate raw memory for heapParents (no construction yet)
+    auto heapParents = static_cast<ParentTest1*>(std::malloc(sizeof(ParentTest1) * parentCount));
+
+    // Move-construct ParentTest1 instances into raw memory using placement new
+    for (std::size_t i = 0; parentPtrs2[i] != nullptr; ++i)
+    {
+        const auto parentPtr = parentPtrs2[i];
+        new (&heapParents[i]) ParentTest1(std::move(*parentPtr));
+        parentPtrs2[i] = &heapParents[i];
+    }
+
+    return {
+        .heapParents = heapParents,
+        .parentPtrs = parentPtrs2,
+        .sayHelloPtr = sayHelloPtr
+    };
 }

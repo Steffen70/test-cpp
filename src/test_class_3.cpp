@@ -2,25 +2,26 @@
 #include <iostream>
 #include <fmt/core.h>
 
-void validate_string_length(const char* name)
+void validate_string_length(const char* namePtr)
 {
-    if (std::strlen(name) > TestClass3::max_name_length)
+    if (std::strlen(namePtr) > TestClass3::max_name_length)
         throw std::runtime_error(fmt::format("The provided name can't exceed {} characters.", TestClass3::max_name_length));
 }
 
-TestClass3::TestClass3(const char* name)
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
+TestClass3::TestClass3(const char* namePtr)
 {
-    if (!name)
+    if (!namePtr)
     {
         std::cout << "TestClass3 created" << '\n';
         name_[0] = '\0';
         return;
     }
 
-    validate_string_length(name);
+    validate_string_length(namePtr);
     std::cout << "TestClass3 created" << '\n';
 
-    std::strncpy(name_, name, max_name_length);
+    std::strncpy(name_, namePtr, max_name_length);
     // Always terminate.
     name_[max_name_length] = '\0';
 }
@@ -49,10 +50,10 @@ TestClass3::~TestClass3() noexcept
 //     return *this;
 // }
 
-void TestClass3::setName(const char* name)
+void TestClass3::setName(const char* namePtr)
 {
-    validate_string_length(name);
-    std::strncpy(name_, name, max_name_length);
+    validate_string_length(namePtr);
+    std::strncpy(name_, namePtr, max_name_length);
     name_[max_name_length] = '\0';
 }
 

@@ -4,10 +4,10 @@
 class TestClass2
 {
 public:
-    explicit TestClass2(const char* name);
+    explicit TestClass2(const char* namePtr);
     // No destructor, copy/move construction/assignment needed at all!
 
-    void setName(const char* name);
+    void setName(const char* namePtr);
     void sayHello() const;
 
 private:

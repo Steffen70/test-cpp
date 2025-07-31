@@ -3,7 +3,7 @@
 class TestClass1
 {
 public:
-    static TestClass1 createFromName(const char* name);
+    static TestClass1 createFromName(const char* namePtr);
     ~TestClass1() noexcept;
 
     TestClass1(const TestClass1&);
@@ -12,15 +12,15 @@ public:
     TestClass1(TestClass1&&) noexcept;
     TestClass1& operator=(TestClass1&&) noexcept;
 
-    void setName(const char* name);
+    void setName(const char* namePtr);
 
     void sayHello() const;
 
 protected:
-    explicit TestClass1(const char* name);
+    explicit TestClass1(const char* namePtr);
 
     void moveFrom(TestClass1& other) noexcept;
 
 private:
-    char* name_;
+    char* namePtr_;
 };
