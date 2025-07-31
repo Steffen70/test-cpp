@@ -16,9 +16,7 @@ file(GLOB_RECURSE SRC_FILES
     src/*.cpp
 )
 
-add_executable(${PROJECT_NAME} ${SRC_FILES}
-        include/test_cpp/test_class_2.hpp
-        src/test_class_2.cpp)
+add_executable(${PROJECT_NAME} ${SRC_FILES} src/test_class_2.cpp)
 
 target_include_directories(${PROJECT_NAME}
     PUBLIC

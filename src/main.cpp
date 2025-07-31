@@ -14,15 +14,21 @@ struct TestReturnValue
 
 TestReturnValue test();
 
-template <typename TIn>
-void say_hello(TIn* inputPtr)
+template <typename T>
+concept HasSayHello = requires(T t)
+{
+    { t.sayHello() };
+};
+
+template <HasSayHello T>
+void say_hello(T* inputPtr)
 {
     inputPtr->sayHello();
 }
 
 int main(int argc, char** argv)
 {
-    TestReturnValue (* testPtr)() = &test;
+    TestReturnValue (*testPtr)() = &test;
     const auto [heapParents, parentPtrs] = (*testPtr)();
 
     // Confirm updated pointer values and say_hello from heap-constructed objects
@@ -73,18 +79,23 @@ TestReturnValue test()
     test5.sayHello();
 
     // TestClass3 stores name in internal fixed array (no heap); copy supported, move not supported
-    auto test6 = TestClass3("Europe");
+    using TestClass3_32 = TestClass3<32>;
+    auto test6 = TestClass3_32("Europe");
     // Default-construct test7, then copy-assign from test6
-    TestClass3 test7(nullptr);
+    TestClass3_32 test7(nullptr);
     test7 = test6;
     // Modify test6’s name to verify independent storage
     test6.setName("Solar System");
     // Default construct test8 with nullptr; name set to empty string
-    const TestClass3 test8(nullptr);
+    const TestClass3_32 test8(nullptr);
 
     test6.sayHello();
     test7.sayHello();
     test8.sayHello();
+
+    const auto test10 = TestClass3<8>("America");
+    // const auto test10 = TestClass3<8>("LosAngeles");
+    test10.sayHello();
 
     // Create heap instance *test9Ptr by moving a factory-created stack object
     auto* test9Ptr = new TestClass1(std::move(TestClass1::createFromName(nullptr)));
@@ -115,17 +126,17 @@ TestReturnValue test()
 
     // parent1 and parent2 have their own independent lifetimes and resources
     // parent1.sayHello();
-    void (ParentTest1::* sayHelloPtr)() const = &ParentTest1::sayHello;
+    void (ParentTest1::*sayHelloPtr)() const = &ParentTest1::sayHello;
     // (parent2.*sayHelloPtr)();
 
     // Create pointer array to stack-allocated ParentTest1 instances
-    ParentTest1* parentPtrs1[] = { &parent1, &parent2 };
+    ParentTest1* parentPtrs1[] = {&parent1, &parent2};
     for (const ParentTest1* parentPtr : parentPtrs1)
         // Calls sayHello via pointer-to-member
         (parentPtr->*sayHelloPtr)();
 
     // Create heap-allocated array of ParentTest1 pointers (ending with nullptr sentinel)
-    auto** parentPtrs2 = new  ParentTest1*[]{&parent1, &parent2, nullptr};
+    auto** parentPtrs2 = new ParentTest1*[]{&parent1, &parent2, nullptr};
 
     // Iterate over stack-based instances using heap-allocated pointer list
     for (std::size_t i = 0; parentPtrs2[i] != nullptr; ++i)
@@ -146,7 +157,7 @@ TestReturnValue test()
     for (std::size_t i = 0; parentPtrs2[i] != nullptr; ++i)
     {
         const auto parentPtr = parentPtrs2[i];
-        new (&heapParents[i]) ParentTest1(std::move(*parentPtr));
+        new(&heapParents[i]) ParentTest1(std::move(*parentPtr));
         parentPtrs2[i] = &heapParents[i];
     }
 

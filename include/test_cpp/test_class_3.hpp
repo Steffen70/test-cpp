@@ -1,11 +1,12 @@
 #pragma once
 #include <cstddef>
 
+template <std::size_t TLength>
 class TestClass3
 {
 public:
-    // Up to 31 visible chars
-    static constexpr std::size_t max_name_length = 31;
+    // Up to TLength - 1 chars, +1 for null terminator
+    static constexpr std::size_t max_name_length = TLength - 1;
 
     explicit TestClass3(const char* namePtr);
     ~TestClass3() noexcept;
@@ -21,6 +22,7 @@ public:
     void sayHello() const;
 
 protected:
-    // +1 for null terminator
-    char name_[max_name_length + 1];
+    char name_[TLength];
 };
+
+# include <test_cpp/test_class_3.tpp>
