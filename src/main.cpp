@@ -17,7 +17,7 @@ void* linear_search(void* keyPtr, void* arrPtr, size_t arraySize, size_t elemSiz
 struct Student
 {
     double grade;
-    char* namePtr;
+    const char* namePtr;
 };
 
 int main(int argc, char** argv)
@@ -34,10 +34,10 @@ int main(int argc, char** argv)
     fmt::println(stdout, "elemAddrPtr: {}, elemValue: {}, key: {}", fmt::ptr(elemAddrPtr), *(int*)elemAddrPtr, key);
 
     Student studentArr[] = {
-        Student(4, strdup("Sam")),
-        Student(4.5, strdup("Dionys")),
-        Student(4.75, strdup("Severin")),
-        Student(3.5, strdup("Fredy")),
+        Student(4, "Sam"),
+        Student(4.5, "Dionys"),
+        Student(4.75, "Severin"),
+        Student(3.5, "Fredy"),
     };
 
     for (size_t i = 6 * 4; i >= 1 * 4; i--)
@@ -56,9 +56,5 @@ int main(int argc, char** argv)
         break;
     }
 
-    for (auto& i : studentArr)
-    {
-        std::free(i.namePtr);
-    }
     return 0;
 }
