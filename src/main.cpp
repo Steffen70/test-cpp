@@ -1,8 +1,8 @@
 #include <fmt/color.h>
 
-void* linear_search(void* keyPtr, void* arrPtr, size_t arraySize, size_t elemSize, int (*cmpFn)(void*, void*))
+void* linear_search(void* keyPtr, void* arrPtr, size_t arrSize, size_t elemSize, int (*cmpFn)(void*, void*))
 {
-    for (size_t i = 0; i < arraySize; i++)
+    for (size_t i = 0; i < arrSize; i++)
     {
         void* elemAddrPtr = (char*)arrPtr + i * elemSize;
         if (cmpFn(keyPtr, elemAddrPtr) == 0)
@@ -55,6 +55,22 @@ int main(int argc, char** argv)
         fmt::println(stdout, "The best student is: {}, with grade: {}", bestStudentPtr->namePtr, bestStudentPtr->grade);
         break;
     }
+
+    const char* strArr[]
+    {
+        "Test",
+        "Test1",
+        "Test2",
+        "Test3"
+    };
+
+    char** matchingStrPtr = (char**)linear_search((void*)"Test1", strArr, 4, sizeof(const char*), [](void* keyPtr, void* elemPtr) -> int
+    {
+        return strcmp((char*)keyPtr, *(char**)elemPtr);
+    });
+
+    if (matchingStrPtr != nullptr)
+        fmt::println(stdout, "The matching string is: {}", *matchingStrPtr);
 
     return 0;
 }
