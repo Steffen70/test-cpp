@@ -1,13 +1,15 @@
 #pragma once
+#include <cstddef>
 
 struct Stack
 {
-    int maxDepth;
-    int currentDepth;
-    int* stackArrPtr;
-    Stack();
+    std::size_t elemSize;
+    std::size_t maxDepth;
+    std::size_t currentDepth;
+    void* stackArrPtr;
+    Stack(std::size_t elemSize);
     ~Stack();
-    void push(int value);
+    void push(void* valuePtr);
     void pop();
-    void printStack();
+    void printStack(char* (*toString)(void* elemPtr), bool shouldFree = false);
 };

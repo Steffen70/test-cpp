@@ -1,16 +1,41 @@
+#include <fmt/core.h>
+#include <string>
 #include <test_cpp/stack.hpp>
+
+struct Student
+{
+    double grade;
+    char* name;
+};
 
 int main(int argc, char** argv)
 {
-    Stack myStack;
+    Stack intStack(sizeof(int));
 
-    myStack.push(1);
-    myStack.push(2);
-    myStack.push(3);
-    myStack.push(4);
-    myStack.push(5);
-    myStack.push(6);
+    for (int i = 1; i <= 6; i++)
+    {
+        intStack.push(&i);
+    }
 
-    myStack.printStack();
+    intStack.printStack([](void* elemPtr) -> char*
+    {
+        auto* intPtr = (int*)elemPtr;
+        return strdup(std::to_string(*intPtr).c_str());
+    }, true);
+
+    Stack studStack(sizeof(Student));
+
+    for (size_t i = 0; i <= 10; i++)
+    {
+        auto* studentPtr = new Student((double)i/2 + 1, strdup(fmt::format("Student{}", i).c_str()));
+        studStack.push(studentPtr);
+    }
+
+    studStack.printStack([](void* elemPtr) -> char*
+    {
+        auto* studPtr = (Student*)elemPtr;
+        return strdup(fmt::format("{} with grade: {}", studPtr->name, studPtr->grade).c_str());
+    }, true);
+
     return 0;
 }
