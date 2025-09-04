@@ -16,13 +16,13 @@ file(GLOB_RECURSE SRC_FILES
     src/*.cpp
 )
 
-add_executable(${PROJECT_NAME} ${SRC_FILES} src/test_class_2.cpp)
+add_executable(${PROJECT_NAME} ${SRC_FILES} src/main.cpp)
 
-target_include_directories(${PROJECT_NAME}
-    PUBLIC
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>
-)
+# target_include_directories(${PROJECT_NAME}
+#     PUBLIC
+#     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+#     $<INSTALL_INTERFACE:include>
+# )
 
 find_package(fmt REQUIRED CONFIG)
 
