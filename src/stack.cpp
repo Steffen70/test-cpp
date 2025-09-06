@@ -20,13 +20,9 @@ void Stack::push(void* valuePtr)
     {
         size_t oldSize = maxDepth * elemSize;
         maxDepth *= 2;
-        size_t newSize = elemSize * maxDepth;
+        size_t newSize = maxDepth  * elemSize;
         fmt::println(stdout, "Reallocating the stack array, old size: {}, new size: {}", oldSize, newSize);
-        auto* newStackArrPtr = std::malloc(newSize);
-        std::memcpy(newStackArrPtr, stackArrPtr, oldSize);
-        auto* oldStackArrayPtr = stackArrPtr;
-        stackArrPtr = newStackArrPtr;
-        std::free(oldStackArrayPtr);
+        stackArrPtr = std::realloc(stackArrPtr, newSize);
     }
 
     std::memcpy((char*)stackArrPtr + currentDepth * elemSize, valuePtr, elemSize);
