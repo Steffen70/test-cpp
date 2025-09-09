@@ -40,14 +40,14 @@ void* Stack::pop()
     return lastElemPtr;
 }
 
-void Stack::printStack(char* (*toString)(void* elemPtr), const bool shouldFree, const bool isRecursion)
+static void print_stack(Stack* stackPtr, char* (*toString)(void* elemPtr), const bool shouldFree, const bool isRecursion)
 {
     if (!isRecursion)
     {
         std::cout << "Stack content:" << std::endl;
     }
 
-    auto* currentElemPtr = pop();
+    auto* currentElemPtr = stackPtr->pop();
 
     if (currentElemPtr == nullptr)
     {
@@ -61,5 +61,10 @@ void Stack::printStack(char* (*toString)(void* elemPtr), const bool shouldFree, 
         std::free(elemStrPtr);
     }
 
-    printStack(toString, shouldFree, true);
+    print_stack(stackPtr, toString, shouldFree, true);
+}
+
+void Stack::printStack(char* (*toString)(void* elemPtr), const bool shouldFree)
+{
+    print_stack(this, toString, shouldFree, false);
 }

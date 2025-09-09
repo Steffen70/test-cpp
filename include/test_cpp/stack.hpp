@@ -11,5 +11,5 @@ struct Stack
     ~Stack();
     void push(const void* valuePtr);
     void* pop();
-    void printStack(char* (*toString)(void* elemPtr), bool shouldFree = false, bool isRecursion = false);
+    void printStack(char* (*toString)(void* elemPtr), bool shouldFree = false);
 };
