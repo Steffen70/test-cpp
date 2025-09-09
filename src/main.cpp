@@ -23,20 +23,27 @@ int main(int argc, char** argv)
         return strdup(std::to_string(*intPtr).c_str());
     }, true);
 
-    Stack studStack(sizeof(Student));
+    Stack studStack(sizeof(Student), [](void* elemPtr) -> void
+    {
+        auto* studPtr = (Student*)elemPtr;
+        std::free(studPtr->name);
+    });
 
-    constexpr size_t maxCount = 1000;
-    constexpr size_t gradeFactor = maxCount / 10;
-    for (size_t i = 0; i <= maxCount; i++)
+    constexpr size_t maxCount = 1001;
+    constexpr size_t gradeFactor = (maxCount - 1) / 10;
+    for (size_t i = 0; i < maxCount; i++)
     {
         auto* studentPtr = new Student((double)i / gradeFactor / 2 + 1, strdup(fmt::format("Student{}", i).c_str()));
         studStack.push(studentPtr);
+        delete studentPtr;
     }
 
-    studStack.printStack([](void* elemPtr) -> char*
+    studStack.printStack([](void* elemPtr, void (*freeElem)(void*)) -> char*
     {
         auto* studPtr = (Student*)elemPtr;
-        return strdup(fmt::format("{} with grade: {}", studPtr->name, studPtr->grade).c_str());
+        auto* messagePtr = strdup(fmt::format("{} with grade: {}", studPtr->name, studPtr->grade).c_str());
+        freeElem(elemPtr);
+        return messagePtr;
     }, true);
 
     const char* friendsArr[] = {
@@ -45,7 +52,7 @@ int main(int argc, char** argv)
         "Friend3"
     };
 
-    Stack strStack(sizeof(char**), [](void* elemPtr) -> void
+    Stack strStack(sizeof(char*), [](void* elemPtr) -> void
     {
         std::free(*(char**)elemPtr);
     });
