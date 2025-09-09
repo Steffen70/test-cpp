@@ -45,16 +45,21 @@ int main(int argc, char** argv)
         "Friend3"
     };
 
-    Stack strStack(sizeof(const char*));
+    Stack strStack(sizeof(char*), [](void* elemPtr) -> void
+    {
+        std::free(*(char**)elemPtr);
+    });
+
     for (const char* friendPtr : friendsArr)
     {
-        strStack.push(friendPtr);
+        auto* stringCopyPtr = strdup(friendPtr);
+        strStack.push(&stringCopyPtr);
     }
 
     strStack.printStack([](void* friendPtr) -> char*
     {
-        return (char*)friendPtr;
-    }, false);
+        return *(char**)friendPtr;
+    }, true);
 
     return 0;
 }

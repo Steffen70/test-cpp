@@ -5,13 +5,21 @@
 #include <fmt/core.h>
 #include <test_cpp/stack.hpp>
 
-Stack::Stack(const size_t elemSize) : elemSize(elemSize), maxDepth(4), currentDepth(0)
+Stack::Stack(const size_t elemSize, void (*freeElem)(void*)) : elemSize(elemSize), maxDepth(4), currentDepth(0), freeElem(freeElem)
 {
     stackArrPtr = std::malloc(elemSize * maxDepth);
 }
 
 Stack::~Stack()
 {
+    if (freeElem != nullptr)
+    {
+        for (size_t i = 0; i < currentDepth; i++)
+        {
+            void* currentElemPtr = (char*)stackArrPtr + i * elemSize;
+            freeElem(currentElemPtr);
+        }
+    }
     std::free(stackArrPtr);
 }
 
@@ -32,9 +40,10 @@ void Stack::push(const void* valuePtr)
 
 bool Stack::pop(void* bufferPtr)
 {
-    currentDepth--;
-    if (currentDepth == -1)
+    if (currentDepth == 0)
         return false;
+
+    currentDepth--;
 
     auto* lastElemPtr = (char*)stackArrPtr + currentDepth * elemSize;
     std::memcpy(bufferPtr, lastElemPtr, elemSize);

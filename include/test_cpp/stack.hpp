@@ -7,7 +7,8 @@ struct Stack
     std::size_t maxDepth;
     std::size_t currentDepth;
     void* stackArrPtr;
-    Stack(std::size_t elemSize);
+    void (*freeElem)(void*);
+    Stack(std::size_t elemSize, void (*freeElem)(void*) = nullptr);
     ~Stack();
     void push(const void* valuePtr);
     bool pop(void* bufferPtr);
