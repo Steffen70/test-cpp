@@ -10,6 +10,6 @@ struct Stack
     Stack(std::size_t elemSize);
     ~Stack();
     void push(const void* valuePtr);
-    void* pop();
+    bool pop(void* bufferPtr);
     void printStack(char* (*toString)(void* elemPtr), bool shouldFree = false);
 };

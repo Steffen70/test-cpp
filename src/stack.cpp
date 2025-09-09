@@ -30,14 +30,15 @@ void Stack::push(const void* valuePtr)
     currentDepth++;
 }
 
-void* Stack::pop()
+bool Stack::pop(void* bufferPtr)
 {
     currentDepth--;
     if (currentDepth == -1)
-        return nullptr;
+        return false;
 
     auto* lastElemPtr = (char*)stackArrPtr + currentDepth * elemSize;
-    return lastElemPtr;
+    std::memcpy(bufferPtr, lastElemPtr, elemSize);
+    return true;
 }
 
 static void print_stack(Stack* stackPtr, char* (*toString)(void* elemPtr), const bool shouldFree, const bool isRecursion)
@@ -47,14 +48,15 @@ static void print_stack(Stack* stackPtr, char* (*toString)(void* elemPtr), const
         std::cout << "Stack content:" << std::endl;
     }
 
-    auto* currentElemPtr = stackPtr->pop();
+    auto* bufferPtr = std::malloc(stackPtr->elemSize);
 
-    if (currentElemPtr == nullptr)
+    if (!stackPtr->pop(bufferPtr))
     {
         return;
     }
 
-    char* elemStrPtr = toString(currentElemPtr);
+    char* elemStrPtr = toString(bufferPtr);
+    std::free(bufferPtr);
     fmt::println(stdout, "'{}',", elemStrPtr);
     if (shouldFree)
     {
