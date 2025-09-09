@@ -13,4 +13,5 @@ struct Stack
     void push(const void* valuePtr);
     bool pop(void* bufferPtr);
     void printStack(char* (*toString)(void* elemPtr), bool shouldFree = false);
+    void printStack(char* (*toString)(void* elemPtr, void (*freeElem)(void*)), bool shouldFree = true);
 };

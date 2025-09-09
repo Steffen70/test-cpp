@@ -45,7 +45,7 @@ int main(int argc, char** argv)
         "Friend3"
     };
 
-    Stack strStack(sizeof(char*), [](void* elemPtr) -> void
+    Stack strStack(sizeof(char**), [](void* elemPtr) -> void
     {
         std::free(*(char**)elemPtr);
     });
@@ -56,9 +56,12 @@ int main(int argc, char** argv)
         strStack.push(&stringCopyPtr);
     }
 
-    strStack.printStack([](void* friendPtr) -> char*
+    strStack.printStack([](void* friendPtr, void (*freeElem)(void*)) -> char*
     {
-        return *(char**)friendPtr;
+        // return *(char**)friendPtr;
+        auto* messagePtr = strdup(fmt::format("My friend is: {}", *(char**)friendPtr).c_str());
+        freeElem(friendPtr);
+        return messagePtr;
     }, true);
 
     return 0;

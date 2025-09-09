@@ -50,7 +50,7 @@ bool Stack::pop(void* bufferPtr)
     return true;
 }
 
-static void print_stack(Stack* stackPtr, char* (*toString)(void* elemPtr), const bool shouldFree, const bool isRecursion)
+static void print_stack(Stack* stackPtr, const bool shouldFree, const bool isRecursion, char* (*toString)(void* elemPtr), char* (*toStringWithFreeElem)(void* elemPtr, void (*freeElem)(void*)))
 {
     if (!isRecursion)
     {
@@ -64,7 +64,16 @@ static void print_stack(Stack* stackPtr, char* (*toString)(void* elemPtr), const
         return;
     }
 
-    char* elemStrPtr = toString(bufferPtr);
+    char* elemStrPtr = nullptr;
+    if (toString != nullptr)
+    {
+        elemStrPtr = toString(bufferPtr);
+    }
+    else
+    {
+        elemStrPtr = toStringWithFreeElem(bufferPtr, stackPtr->freeElem);
+    }
+
     fmt::println(stdout, "'{}',", elemStrPtr);
     std::free(bufferPtr);
     if (shouldFree)
@@ -72,10 +81,15 @@ static void print_stack(Stack* stackPtr, char* (*toString)(void* elemPtr), const
         std::free(elemStrPtr);
     }
 
-    print_stack(stackPtr, toString, shouldFree, true);
+    print_stack(stackPtr, shouldFree, true, toString, toStringWithFreeElem);
 }
 
 void Stack::printStack(char* (*toString)(void* elemPtr), const bool shouldFree)
 {
-    print_stack(this, toString, shouldFree, false);
+    print_stack(this, shouldFree, false, toString, nullptr);
+}
+
+void Stack::printStack(char*(*toString)(void* elemPtr, void (*freeElem)(void*)), bool shouldFree)
+{
+    print_stack(this, shouldFree, false, nullptr, toString);
 }
