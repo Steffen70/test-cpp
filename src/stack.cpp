@@ -56,8 +56,8 @@ static void print_stack(Stack* stackPtr, char* (*toString)(void* elemPtr), const
     }
 
     char* elemStrPtr = toString(bufferPtr);
-    std::free(bufferPtr);
     fmt::println(stdout, "'{}',", elemStrPtr);
+    std::free(bufferPtr);
     if (shouldFree)
     {
         std::free(elemStrPtr);

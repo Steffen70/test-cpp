@@ -29,7 +29,7 @@ int main(int argc, char** argv)
     constexpr size_t gradeFactor = maxCount / 10;
     for (size_t i = 0; i <= maxCount; i++)
     {
-        auto* studentPtr = new Student((double)i/gradeFactor/2 + 1, strdup(fmt::format("Student{}", i).c_str()));
+        auto* studentPtr = new Student((double)i / gradeFactor / 2 + 1, strdup(fmt::format("Student{}", i).c_str()));
         studStack.push(studentPtr);
     }
 
@@ -38,6 +38,23 @@ int main(int argc, char** argv)
         auto* studPtr = (Student*)elemPtr;
         return strdup(fmt::format("{} with grade: {}", studPtr->name, studPtr->grade).c_str());
     }, true);
+
+    const char* friendsArr[] = {
+        "Friend1",
+        "Friend2",
+        "Friend3"
+    };
+
+    Stack strStack(sizeof(const char*));
+    for (const char* friendPtr : friendsArr)
+    {
+        strStack.push(friendPtr);
+    }
+
+    strStack.printStack([](void* friendPtr) -> char*
+    {
+        return (char*)friendPtr;
+    }, false);
 
     return 0;
 }
