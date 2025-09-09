@@ -25,9 +25,11 @@ int main(int argc, char** argv)
 
     Stack studStack(sizeof(Student));
 
-    for (size_t i = 0; i <= 10; i++)
+    constexpr size_t maxCount = 1000;
+    constexpr size_t gradeFactor = maxCount / 10;
+    for (size_t i = 0; i <= maxCount; i++)
     {
-        auto* studentPtr = new Student((double)i/2 + 1, strdup(fmt::format("Student{}", i).c_str()));
+        auto* studentPtr = new Student((double)i/gradeFactor/2 + 1, strdup(fmt::format("Student{}", i).c_str()));
         studStack.push(studentPtr);
     }
 

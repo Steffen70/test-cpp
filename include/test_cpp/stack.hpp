@@ -9,7 +9,7 @@ struct Stack
     void* stackArrPtr;
     Stack(std::size_t elemSize);
     ~Stack();
-    void push(void* valuePtr);
-    void pop();
-    void printStack(char* (*toString)(void* elemPtr), bool shouldFree = false);
+    void push(const void* valuePtr);
+    void* pop();
+    void printStack(char* (*toString)(void* elemPtr), bool shouldFree = false, bool isRecursion = false);
 };

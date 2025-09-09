@@ -1,10 +1,11 @@
+#include <cassert>
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
 #include <fmt/core.h>
 #include <test_cpp/stack.hpp>
 
-Stack::Stack(size_t elemSize) : elemSize(elemSize), maxDepth(4), currentDepth(0)
+Stack::Stack(const size_t elemSize) : elemSize(elemSize), maxDepth(4), currentDepth(0)
 {
     stackArrPtr = std::malloc(elemSize * maxDepth);
 }
@@ -14,13 +15,13 @@ Stack::~Stack()
     std::free(stackArrPtr);
 }
 
-void Stack::push(void* valuePtr)
+void Stack::push(const void* valuePtr)
 {
     if (currentDepth >= maxDepth)
     {
         size_t oldSize = maxDepth * elemSize;
         maxDepth *= 2;
-        size_t newSize = maxDepth  * elemSize;
+        size_t newSize = maxDepth * elemSize;
         fmt::println(stdout, "Reallocating the stack array, old size: {}, new size: {}", oldSize, newSize);
         stackArrPtr = std::realloc(stackArrPtr, newSize);
     }
@@ -29,29 +30,36 @@ void Stack::push(void* valuePtr)
     currentDepth++;
 }
 
-void Stack::pop()
+void* Stack::pop()
 {
     currentDepth--;
+    if (currentDepth == -1)
+        return nullptr;
+
+    auto* lastElemPtr = (char*)stackArrPtr + currentDepth * elemSize;
+    return lastElemPtr;
 }
 
-void Stack::printStack(char* (*toString)(void* elemPtr), bool shouldFree)
+void Stack::printStack(char* (*toString)(void* elemPtr), const bool shouldFree, const bool isRecursion)
 {
-    std::cout << "Stack content: ";
-    for (size_t i = 0; i < currentDepth; i++)
+    if (!isRecursion)
     {
-        auto* elemPtr = (char*)stackArrPtr + i * elemSize;
-        char* elemStrPtr = toString(elemPtr);
-        fmt::print(stdout, "'{}'", elemStrPtr);
-
-        if (shouldFree)
-        {
-            std::free(elemStrPtr);
-        }
-
-        if (i + 1 != currentDepth)
-        {
-            std::cout << ", ";
-        }
+        std::cout << "Stack content:" << std::endl;
     }
-    std::cout << std::endl;
+
+    auto* currentElemPtr = pop();
+
+    if (currentElemPtr == nullptr)
+    {
+        return;
+    }
+
+    char* elemStrPtr = toString(currentElemPtr);
+    fmt::println(stdout, "'{}',", elemStrPtr);
+    if (shouldFree)
+    {
+        std::free(elemStrPtr);
+    }
+
+    printStack(toString, shouldFree, true);
 }
