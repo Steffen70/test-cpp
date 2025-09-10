@@ -10,13 +10,23 @@ Stack::Stack(const size_t elemSize, void (*freeElem)(void*)) : elemSize(elemSize
     stackArrPtr = std::malloc(elemSize * maxDepth);
 }
 
+static char* get_insertion_ptr(const Stack* stackPtr, const size_t index)
+{
+    return (char*)stackPtr->stackArrPtr + index * stackPtr->elemSize;
+}
+
+static char* get_insertion_ptr(const Stack* stackPtr)
+{
+    return get_insertion_ptr(stackPtr, stackPtr->currentDepth);
+}
+
 Stack::~Stack()
 {
     if (freeElem != nullptr)
     {
         for (size_t i = 0; i < currentDepth; i++)
         {
-            void* currentElemPtr = (char*)stackArrPtr + i * elemSize;
+            void* currentElemPtr = get_insertion_ptr(this, i);
             freeElem(currentElemPtr);
         }
     }
@@ -34,7 +44,7 @@ void Stack::push(const void* valuePtr)
         stackArrPtr = std::realloc(stackArrPtr, newSize);
     }
 
-    std::memcpy((char*)stackArrPtr + currentDepth * elemSize, valuePtr, elemSize);
+    std::memcpy(get_insertion_ptr(this), valuePtr, elemSize);
     currentDepth++;
 }
 
@@ -45,7 +55,7 @@ bool Stack::pop(void* bufferPtr)
 
     currentDepth--;
 
-    auto* lastElemPtr = (char*)stackArrPtr + currentDepth * elemSize;
+    auto* lastElemPtr = get_insertion_ptr(this);
     std::memcpy(bufferPtr, lastElemPtr, elemSize);
     return true;
 }
@@ -96,24 +106,24 @@ void Stack::printStack(char*(*toString)(void* elemPtr, void (*freeElem)(void*)),
 
 void Stack::promote(size_t elemIndex, size_t elemCount)
 {
-    auto* frontPtr = (char*)stackArrPtr + elemIndex * elemSize;
+    auto* frontPtr = get_insertion_ptr(this, elemIndex);
     size_t bufferSize = elemCount * elemSize;
     auto* middlePtr = frontPtr + bufferSize;
-    auto* newEndPtr = (char*)stackArrPtr + currentDepth * elemSize - bufferSize;
+    auto* endPtr = get_insertion_ptr(this);
 
     char buffer[bufferSize];
     std::memcpy(buffer, frontPtr, bufferSize);
 
-    std::memmove(frontPtr, middlePtr, (currentDepth - (elemIndex + elemCount)) * elemSize);
+    std::memmove(frontPtr, middlePtr, endPtr - middlePtr);
 
-    std::memcpy(newEndPtr, buffer, bufferSize);
+    std::memcpy(endPtr - bufferSize, buffer, bufferSize);
 }
 
 void Stack::promoteFirst(bool (*predicate)(void*))
 {
     for (size_t i = 0; i < currentDepth; i++)
     {
-        void* currentElemPtr = (char*)stackArrPtr + i * elemSize;
+        void* currentElemPtr = get_insertion_ptr(this, i);
         if (predicate(currentElemPtr))
         {
             promote(i);
