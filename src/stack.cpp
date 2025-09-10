@@ -109,3 +109,16 @@ void Stack::promote(size_t elemIndex, size_t elemCount)
     std::memcpy(newEndPtr, bufferPtr, bufferSize);
     std::free(bufferPtr);
 }
+
+void Stack::promoteFirst(bool (*predicate)(void*))
+{
+    for (size_t i = 0; i < currentDepth; i++)
+    {
+        void* currentElemPtr = (char*)stackArrPtr + i * elemSize;
+        if (predicate(currentElemPtr))
+        {
+            promote(i);
+            return;
+        }
+    }
+}
