@@ -104,7 +104,7 @@ void Stack::promote(size_t elemIndex, size_t elemCount)
     auto* bufferPtr = std::malloc(bufferSize);
     std::memcpy(bufferPtr, frontPtr, bufferSize);
 
-    std::memcpy(frontPtr, middlePtr, (currentDepth - (elemIndex + elemCount)) * elemSize);
+    std::memmove(frontPtr, middlePtr, (currentDepth - (elemIndex + elemCount)) * elemSize);
 
     std::memcpy(newEndPtr, bufferPtr, bufferSize);
     std::free(bufferPtr);

@@ -39,6 +39,8 @@ int main(int argc, char** argv)
     }
 
     studStack.promote(800, 100);
+    studStack.promote(420);
+    studStack.promote(69);
 
     studStack.printStack([](void* elemPtr, void (*freeElem)(void*)) -> char*
     {
