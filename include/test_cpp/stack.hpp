@@ -14,6 +14,7 @@ struct Stack
     bool pop(void* bufferPtr);
     void printStack(char* (*toString)(void* elemPtr), bool shouldFree = false);
     void printStack(char* (*toString)(void* elemPtr, void (*freeElem)(void*)), bool shouldFree = true);
-    void promote(size_t elemIndex, size_t elemCount = 1);
-    void promoteFirst(bool (*predicate)(void*));
+    void promote(size_t elemIndex, size_t elemCount = 1) const;
+    void promoteFirst(bool (*predicate)(void*)) const;
+    void quickSort(void* (*getValuePtr)(void* elemPtr), bool (*isSmallerThan)(void* jValuePtr, void* pivotValuePtr)) const;
 };

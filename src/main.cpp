@@ -1,3 +1,5 @@
+#include <charconv>
+#include <regex>
 #include <fmt/core.h>
 #include <string>
 #include <test_cpp/stack.hpp>
@@ -16,6 +18,17 @@ int main(int argc, char** argv)
     {
         intStack.push(&i);
     }
+
+    intStack.promote(1, 3);
+    intStack.quickSort(
+        [](void* elemPtr) -> void*
+        {
+            return elemPtr;
+        }, [](void* jValuePtr, void* pivotValuePtr) -> bool
+        {
+            return *(int*)jValuePtr < *(int*)pivotValuePtr;
+        });
+
 
     intStack.printStack([](void* elemPtr) -> char*
     {
@@ -41,9 +54,19 @@ int main(int argc, char** argv)
     studStack.promote(800, 100);
     studStack.promote(420);
     studStack.promote(69);
-    studStack.promoteFirst([](void* elemPtr) -> bool {
+    studStack.promoteFirst([](void* elemPtr) -> bool
+    {
         return ((Student*)elemPtr)->grade == 6;
     });
+
+    studStack.quickSort(
+        [](void* elemPtr) -> void*
+        {
+            return &((Student*)elemPtr)->grade;
+        }, [](void* jValuePtr, void* pivotValuePtr) -> bool
+        {
+            return *(double*)jValuePtr < *(double*)pivotValuePtr;
+        });
 
     studStack.printStack([](void* elemPtr, void (*freeElem)(void*)) -> char*
     {
@@ -54,8 +77,8 @@ int main(int argc, char** argv)
     }, true);
 
     const char* friendsArr[] = {
-        "Friend1",
-        "Friend2",
+        "Friend161",
+        "Friend24",
         "Friend3"
     };
 
@@ -71,6 +94,25 @@ int main(int argc, char** argv)
     }
 
     strStack.promote(1);
+
+    strStack.quickSort(
+        [](void* elemPtr) -> void*
+        {
+            return *(char**)elemPtr;
+        }, [](void* jValuePtr, void* pivotValuePtr) -> bool
+        {
+            static const std::regex numRegex("^Friend(\\d+)$");
+
+            std::cmatch jMatch, pivotMatch;
+            std::regex_search((char*)jValuePtr, jMatch, numRegex);
+            std::regex_search((char*)pivotValuePtr, pivotMatch, numRegex);
+
+            int jNum = 0, pivotNum = 0;
+            std::from_chars(jMatch[1].first, jMatch[1].second, jNum);
+            std::from_chars(pivotMatch[1].first, pivotMatch[1].second, pivotNum);
+            return jNum < pivotNum;
+        });
+
 
     strStack.printStack([](void* friendPtr, void (*freeElem)(void*)) -> char*
     {

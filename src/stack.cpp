@@ -10,14 +10,14 @@ Stack::Stack(const size_t elemSize, void (*freeElem)(void*)) : elemSize(elemSize
     stackArrPtr = std::malloc(elemSize * maxDepth);
 }
 
-static char* get_insertion_ptr(const Stack* stackPtr, const size_t index)
+static char* get_elem_ptr(const Stack* stackPtr, const size_t index)
 {
     return (char*)stackPtr->stackArrPtr + index * stackPtr->elemSize;
 }
 
-static char* get_insertion_ptr(const Stack* stackPtr)
+static char* get_elem_ptr(const Stack* stackPtr)
 {
-    return get_insertion_ptr(stackPtr, stackPtr->currentDepth);
+    return get_elem_ptr(stackPtr, stackPtr->currentDepth);
 }
 
 Stack::~Stack()
@@ -26,7 +26,7 @@ Stack::~Stack()
     {
         for (size_t i = 0; i < currentDepth; i++)
         {
-            void* currentElemPtr = get_insertion_ptr(this, i);
+            void* currentElemPtr = get_elem_ptr(this, i);
             freeElem(currentElemPtr);
         }
     }
@@ -44,7 +44,7 @@ void Stack::push(const void* valuePtr)
         stackArrPtr = std::realloc(stackArrPtr, newSize);
     }
 
-    std::memcpy(get_insertion_ptr(this), valuePtr, elemSize);
+    std::memcpy(get_elem_ptr(this), valuePtr, elemSize);
     currentDepth++;
 }
 
@@ -55,7 +55,7 @@ bool Stack::pop(void* bufferPtr)
 
     currentDepth--;
 
-    auto* lastElemPtr = get_insertion_ptr(this);
+    auto* lastElemPtr = get_elem_ptr(this);
     std::memcpy(bufferPtr, lastElemPtr, elemSize);
     return true;
 }
@@ -104,30 +104,91 @@ void Stack::printStack(char*(*toString)(void* elemPtr, void (*freeElem)(void*)),
     print_stack(this, shouldFree, false, nullptr, toString);
 }
 
-void Stack::promote(size_t elemIndex, size_t elemCount)
+static void rotate(void* frontPtr, void* middlePtr, void* endPtr)
 {
-    auto* frontPtr = get_insertion_ptr(this, elemIndex);
-    size_t bufferSize = elemCount * elemSize;
-    auto* middlePtr = frontPtr + bufferSize;
-    auto* endPtr = get_insertion_ptr(this);
+    size_t frontSize = (char*)middlePtr - (char*)frontPtr;
 
-    char buffer[bufferSize];
-    std::memcpy(buffer, frontPtr, bufferSize);
+    char buffer[frontSize];
+    std::memcpy(buffer, frontPtr, frontSize);
 
-    std::memmove(frontPtr, middlePtr, endPtr - middlePtr);
+    std::memmove(frontPtr, middlePtr, (char*)endPtr - (char*)middlePtr);
 
-    std::memcpy(endPtr - bufferSize, buffer, bufferSize);
+    std::memcpy((char*)endPtr - frontSize, buffer, frontSize);
 }
 
-void Stack::promoteFirst(bool (*predicate)(void*))
+void Stack::promote(size_t elemIndex, size_t elemCount) const
+{
+    rotate(get_elem_ptr(this, elemIndex), get_elem_ptr(this, elemIndex + elemCount), get_elem_ptr(this));
+}
+
+void Stack::promoteFirst(bool (*predicate)(void*)) const
 {
     for (size_t i = 0; i < currentDepth; i++)
     {
-        void* currentElemPtr = get_insertion_ptr(this, i);
+        void* currentElemPtr = get_elem_ptr(this, i);
         if (predicate(currentElemPtr))
         {
             promote(i);
             return;
         }
     }
+}
+
+static void swap(void* value1Ptr, void* value2Ptr, const size_t elemSize)
+{
+    char buffer[elemSize];
+    std::memcpy(buffer, value1Ptr, elemSize);
+    std::memcpy(value1Ptr, value2Ptr, elemSize);
+    std::memcpy(value2Ptr, buffer, elemSize);
+}
+
+static size_t partition(const Stack* stackPtr, const size_t startIndex, const size_t endIndex, void* (*getValuePtr)(void* elemPtr), bool (*isSmallerThan)(void* jValuePtr, void* pivotValuePtr))
+{
+    const size_t pivotIndex = endIndex;
+    size_t i = startIndex;
+
+    auto* pivotPtr = get_elem_ptr(stackPtr, pivotIndex);
+    const auto pivotValuePtr = getValuePtr(pivotPtr);
+
+    const auto elemSize = stackPtr->elemSize;
+
+    for (size_t j = startIndex; j <= endIndex - 1; j++)
+    {
+        if (auto* jPtr = get_elem_ptr(stackPtr, j); isSmallerThan(getValuePtr(jPtr), pivotValuePtr))
+        {
+            swap(get_elem_ptr(stackPtr, i), jPtr, elemSize);
+            i++;
+        }
+    }
+    swap(get_elem_ptr(stackPtr, i), pivotPtr, elemSize);
+
+    return i;
+}
+
+static void quick_sort(const Stack* stackPtr, const size_t startIndex, const size_t endIndex, void* (*getValuePtr)(void* elemPtr), bool (*isSmallerThan)(void* jValuePtr, void* pivotValuePtr))
+{
+    if (endIndex <= startIndex)
+    {
+        return;
+    }
+
+    const auto pivotIndex = partition(stackPtr, startIndex, endIndex, getValuePtr, isSmallerThan);
+
+    if (pivotIndex > startIndex) {
+        quick_sort(stackPtr, startIndex, pivotIndex - 1, getValuePtr, isSmallerThan);
+    }
+
+    if (pivotIndex < endIndex) {
+        quick_sort(stackPtr, pivotIndex + 1, endIndex, getValuePtr, isSmallerThan);
+    }
+}
+
+void Stack::quickSort(void* (*getValuePtr)(void* elemPtr), bool (*isSmallerThan)(void* jValuePtr, void* pivotValuePtr)) const
+{
+    if (currentDepth <= 1)
+    {
+        return;
+    }
+
+    quick_sort(this, 0, currentDepth - 1, getValuePtr, isSmallerThan);
 }
