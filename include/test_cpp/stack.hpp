@@ -14,4 +14,5 @@ struct Stack
     bool pop(void* bufferPtr);
     void printStack(char* (*toString)(void* elemPtr), bool shouldFree = false);
     void printStack(char* (*toString)(void* elemPtr, void (*freeElem)(void*)), bool shouldFree = true);
+    void promote(size_t elemIndex, size_t elemCount = 1);
 };

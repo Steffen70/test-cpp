@@ -93,3 +93,19 @@ void Stack::printStack(char*(*toString)(void* elemPtr, void (*freeElem)(void*)),
 {
     print_stack(this, shouldFree, false, nullptr, toString);
 }
+
+void Stack::promote(size_t elemIndex, size_t elemCount)
+{
+    auto* frontPtr = (char*)stackArrPtr + elemIndex * elemSize;
+    size_t bufferSize = elemCount * elemSize;
+    auto* middlePtr = frontPtr + bufferSize;
+    auto* newEndPtr = (char*)stackArrPtr + currentDepth * elemSize - bufferSize;
+
+    auto* bufferPtr = std::malloc(bufferSize);
+    std::memcpy(bufferPtr, frontPtr, bufferSize);
+
+    std::memcpy(frontPtr, middlePtr, (currentDepth - (elemIndex + elemCount)) * elemSize);
+
+    std::memcpy(newEndPtr, bufferPtr, bufferSize);
+    std::free(bufferPtr);
+}

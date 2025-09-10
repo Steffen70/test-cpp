@@ -38,6 +38,8 @@ int main(int argc, char** argv)
         delete studentPtr;
     }
 
+    studStack.promote(800, 100);
+
     studStack.printStack([](void* elemPtr, void (*freeElem)(void*)) -> char*
     {
         auto* studPtr = (Student*)elemPtr;
@@ -62,6 +64,8 @@ int main(int argc, char** argv)
         auto* stringCopyPtr = strdup(friendPtr);
         strStack.push(&stringCopyPtr);
     }
+
+    strStack.promote(1);
 
     strStack.printStack([](void* friendPtr, void (*freeElem)(void*)) -> char*
     {
