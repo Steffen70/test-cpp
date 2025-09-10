@@ -101,13 +101,12 @@ void Stack::promote(size_t elemIndex, size_t elemCount)
     auto* middlePtr = frontPtr + bufferSize;
     auto* newEndPtr = (char*)stackArrPtr + currentDepth * elemSize - bufferSize;
 
-    auto* bufferPtr = std::malloc(bufferSize);
-    std::memcpy(bufferPtr, frontPtr, bufferSize);
+    char buffer[bufferSize];
+    std::memcpy(buffer, frontPtr, bufferSize);
 
     std::memmove(frontPtr, middlePtr, (currentDepth - (elemIndex + elemCount)) * elemSize);
 
-    std::memcpy(newEndPtr, bufferPtr, bufferSize);
-    std::free(bufferPtr);
+    std::memcpy(newEndPtr, buffer, bufferSize);
 }
 
 void Stack::promoteFirst(bool (*predicate)(void*))
