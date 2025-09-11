@@ -10,7 +10,7 @@ typedef struct Student
     char* name;
 } Student;
 
-static void* int_get_value_ptr(void* elemPtr)
+static const void* int_get_value_ptr(const void* elemPtr)
 {
     return elemPtr;
 }
@@ -20,7 +20,7 @@ static bool int_is_smaller_than(const void* jValuePtr, const void* pivotValuePtr
     return *(int*)jValuePtr < *(int*)pivotValuePtr;
 }
 
-static char* int_to_string(void* elemPtr)
+static char* int_to_string(const void* elemPtr)
 {
     const int* intPtr = elemPtr;
     char numStrBuffer[16];
@@ -28,18 +28,19 @@ static char* int_to_string(void* elemPtr)
     return strdup(numStrBuffer);
 }
 
+// ReSharper disable once CppParameterMayBeConstPtrOrRef
 static void student_free_elem(void* elemPtr)
 {
     const Student* studPtr = elemPtr;
     free(studPtr->name);
 }
 
-static bool student_predicate(void* elemPtr)
+static bool student_predicate(const void* elemPtr)
 {
     return ((Student*)elemPtr)->grade == 6;
 }
 
-static void* student_get_value_ptr(void* elemPtr)
+static const void* student_get_value_ptr(const void* elemPtr)
 {
     return &((Student*)elemPtr)->grade;
 }
@@ -63,12 +64,12 @@ static void str_free_elem(void* elemPtr)
     free(*(char**)elemPtr);
 }
 
-static char* str_to_string(void* elemPtr)
+static char* str_to_string(const void* elemPtr)
 {
     return *(char**)elemPtr;
 }
 
-static void* str_get_value_ptr(void* elemPtr)
+static const void* str_get_value_ptr(const void* elemPtr)
 {
     return *(char**)elemPtr;
 }
