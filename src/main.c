@@ -12,7 +12,7 @@ typedef struct Student
 
 static const void* int_get_value_ptr(const void* elemPtr)
 {
-    return elemPtr;
+    return (void*)elemPtr;
 }
 
 static bool int_is_smaller_than(const void* jValuePtr, const void* pivotValuePtr)
@@ -50,7 +50,7 @@ static bool student_is_smaller_than(const void* jValuePtr, const void* pivotValu
     return *(double*)jValuePtr < *(double*)pivotValuePtr;
 }
 
-static char* student_to_string(void* elemPtr, void (*freeElem)(void*))
+static char* student_to_string(void* elemPtr, const free_elem freeElem)
 {
     const Student* studPtr = elemPtr;
     char* messagePtr = malloc(64);

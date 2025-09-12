@@ -1,18 +1,19 @@
 #pragma once
 #include <stddef.h>
 
+typedef void (*free_elem)(void*);
+
 typedef struct Stack
 {
     size_t elemSize;
     size_t maxDepth;
     size_t currentDepth;
     void* stackArrPtr;
-    void (*freeElem)(void*);
+    free_elem freeElem;
 } Stack;
 
-typedef void (*free_elem)(void*);
 typedef char* (*to_string)(const void* elemPtr);
-typedef char* (*to_string_extended)(void* elemPtr, void (*freeElem)(void*));
+typedef char* (*to_string_extended)(void* elemPtr, free_elem freeElem);
 typedef bool (*predicate)(const void*);
 typedef const void* (*get_value_ptr)(const void* elemPtr);
 typedef bool (*is_smaller_than)(const void* jValuePtr, const void* pivotValuePtr);

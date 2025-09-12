@@ -5,7 +5,7 @@
 #include <string.h>
 #include <test_c/stack.h>
 
-void stack_init(Stack* s, size_t elemSize, free_elem freeElem)
+void stack_init(Stack* s, const size_t elemSize, const free_elem freeElem)
 {
     s->elemSize = elemSize;
     s->maxDepth = 4;
@@ -66,7 +66,7 @@ bool stack_pop(Stack* s, void* bufferPtr)
     return true;
 }
 
-static void print_stack(Stack* s, const bool shouldFree, const bool isRecursion, to_string toString, to_string_extended toStringWithFreeElem)
+static void print_stack(Stack* s, const bool shouldFree, const bool isRecursion, const to_string toString, const to_string_extended toStringWithFreeElem)
 {
     if (!isRecursion)
     {
@@ -100,12 +100,12 @@ static void print_stack(Stack* s, const bool shouldFree, const bool isRecursion,
     print_stack(s, shouldFree, true, toString, toStringWithFreeElem);
 }
 
-void stack_print(Stack* s, to_string toString, bool shouldFree)
+void stack_print(Stack* s, const to_string toString, const bool shouldFree)
 {
     print_stack(s, shouldFree, false, toString, nullptr);
 }
 
-void stack_print_extended(Stack* s, to_string_extended toString, bool shouldFree)
+void stack_print_extended(Stack* s, const to_string_extended toString, const bool shouldFree)
 {
     print_stack(s, shouldFree, false, nullptr, toString);
 }
@@ -127,11 +127,11 @@ void stack_promote(const Stack* s, const size_t elemIndex, const size_t elemCoun
     rotate(get_elem_ptr(s, elemIndex), get_elem_ptr(s, elemIndex + elemCount), get_elem_ptr_simplified(s));
 }
 
-void stack_promote_first(const Stack* s, predicate predicate)
+void stack_promote_first(const Stack* s, const predicate predicate)
 {
     for (size_t i = 0; i < s->currentDepth; i++)
     {
-        void* currentElemPtr = get_elem_ptr(s, i);
+        const void* currentElemPtr = get_elem_ptr(s, i);
         if (predicate(currentElemPtr))
         {
             stack_promote(s, i, 1);
@@ -148,7 +148,7 @@ static void swap(void* value1Ptr, void* value2Ptr, const size_t elemSize)
     memcpy(value2Ptr, buffer, elemSize);
 }
 
-static size_t partition(const Stack* stackPtr, const size_t startIndex, const size_t endIndex, get_value_ptr getValuePtr, is_smaller_than isSmallerThan)
+static size_t partition(const Stack* stackPtr, const size_t startIndex, const size_t endIndex, const get_value_ptr getValuePtr, const is_smaller_than isSmallerThan)
 {
     const size_t pivotIndex = endIndex;
     size_t i = startIndex;
@@ -172,7 +172,7 @@ static size_t partition(const Stack* stackPtr, const size_t startIndex, const si
     return i;
 }
 
-static void quick_sort(const Stack* stackPtr, const size_t startIndex, const size_t endIndex, get_value_ptr getValuePtr, is_smaller_than isSmallerThan)
+static void quick_sort(const Stack* stackPtr, const size_t startIndex, const size_t endIndex, const get_value_ptr getValuePtr, const is_smaller_than isSmallerThan)
 {
     if (endIndex <= startIndex)
     {
@@ -192,7 +192,7 @@ static void quick_sort(const Stack* stackPtr, const size_t startIndex, const siz
     }
 }
 
-void stack_quick_sort(const Stack* s, get_value_ptr getValuePtr, is_smaller_than isSmallerThan)
+void stack_quick_sort(const Stack* s, const get_value_ptr getValuePtr, const is_smaller_than isSmallerThan)
 {
     if (s->currentDepth <= 1)
     {
