@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <test_c/stack.h>
+#include <stack/stack.h>
 
 typedef struct Student
 {

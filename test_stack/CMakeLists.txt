@@ -18,12 +18,8 @@ file(GLOB_RECURSE SRC_FILES
 
 add_executable(${PROJECT_NAME} ${SRC_FILES} src/main.c)
 
-target_include_directories(${PROJECT_NAME}
-    PUBLIC
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>
-)
+target_include_directories(${PROJECT_NAME} PRIVATE ../stack/include)
 
-target_link_libraries(${PROJECT_NAME}
-    PRIVATE
-)
+cmake_path(GET CMAKE_CURRENT_BINARY_DIR FILENAME OUT_DIR_NAME)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../stack/${OUT_DIR_NAME}/libstack.a)

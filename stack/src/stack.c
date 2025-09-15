@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <test_c/stack.h>
+#include <stack/stack.h>
 
 void stack_init(Stack* s, const size_t elemSize, const free_elem freeElem)
 {
