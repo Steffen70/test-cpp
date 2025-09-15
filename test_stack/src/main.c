@@ -177,7 +177,7 @@ int main(int argc, char** argv)
 
     for (size_t i = 0; i < 3; i++)
     {
-        Test2__Test2 test2;
+        Test2__Test2 test2 = TEST2__TEST2__INIT;
         char nameBuffer[32];
         snprintf(nameBuffer, sizeof(nameBuffer), "Teacher%zu", i);
         test2.name = strdup(nameBuffer);

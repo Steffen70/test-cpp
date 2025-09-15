@@ -9,42 +9,65 @@ set(CMAKE_C_EXTENSIONS OFF)
 
 file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS src/*.c)
 
-# Paths to generated protobuf-c sources (collect all, recursively)
-set(GEN_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/generated")
+# Link protobuf-c runtime (system package provides libprotobuf-c)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(PROTOBUFC REQUIRED libprotobuf-c)
 
-# All generated C sources and headers
-file(GLOB_RECURSE GEN_SRCS "${GEN_ROOT}/*.pb-c.c")
-file(GLOB_RECURSE GEN_HDRS "${GEN_ROOT}/*.pb-c.h")
+# Proto inputs and generated outputs
+get_filename_component(PROTO_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../protos" REALPATH)
+file(GLOB_RECURSE PROTO_FILES CONFIGURE_DEPENDS "${PROTO_ROOT}/*.proto")
 
-# Derive unique include directories from generated headers (and sources as fallback)
-set(GEN_INC_DIRS "")
-foreach(hdr IN LISTS GEN_HDRS)
-    get_filename_component(dir "${hdr}" DIRECTORY)
-    list(APPEND GEN_INC_DIRS "${dir}")
+set(GEN_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
+file(MAKE_DIRECTORY "${GEN_DIR}")
+
+# Compute expected outputs
+set(GEN_SRCS)
+set(GEN_HDRS)
+foreach(p IN LISTS PROTO_FILES)
+    file(RELATIVE_PATH rel "${PROTO_ROOT}" "${p}")
+    get_filename_component(noext "${rel}" NAME_WE)
+    get_filename_component(subdir "${rel}" DIRECTORY)
+    set(out_dir "${GEN_DIR}/${subdir}")
+    list(APPEND GEN_SRCS "${out_dir}/${noext}.pb-c.c")
+    list(APPEND GEN_HDRS "${out_dir}/${noext}.pb-c.h")
 endforeach()
-list(REMOVE_DUPLICATES GEN_INC_DIRS)
 
-# Executable with all generated sources
+# Single invocation of protoc-c for all files
+add_custom_command(
+    OUTPUT ${GEN_SRCS} ${GEN_HDRS}
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${GEN_DIR}"
+    COMMAND protoc
+    --proto_path=${PROTO_ROOT}
+    --c_out=${GEN_DIR}
+    ${PROTO_FILES}
+    DEPENDS ${PROTO_FILES}
+    COMMENT "Generating protobuf-c C sources"
+    VERBATIM
+)
+
+# Add generated sources to the target
 add_executable(${PROJECT_NAME}
     ${SRC_FILES}
     src/main.c
     ${GEN_SRCS}
 )
 
-# Include all generated directories
-target_include_directories(${PROJECT_NAME} PRIVATE ${GEN_INC_DIRS})
+# Include generated dirs (derive from headers)
+set(GEN_INC_DIRS "")
+foreach(h IN LISTS GEN_HDRS)
+    get_filename_component(d "${h}" DIRECTORY)
+    list(APPEND GEN_INC_DIRS "${d}")
+endforeach()
+list(REMOVE_DUPLICATES GEN_INC_DIRS)
 
-# Link protobuf-c runtime (system package provides libprotobuf-c)
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(PROTOBUFC REQUIRED libprotobuf-c)
+target_include_directories(${PROJECT_NAME}
+    PRIVATE
+    ${GEN_INC_DIRS}
+    ${PROTOBUFC_INCLUDE_DIRS}
+)
 
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
     ${PROTOBUFC_LIBRARIES}
     stack
-)
-
-target_include_directories(${PROJECT_NAME}
-    PRIVATE
-    ${PROTOBUFC_INCLUDE_DIRS}
 )
