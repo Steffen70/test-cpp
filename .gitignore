@@ -1,6 +1,8 @@
 # IDE files
 .idea/
 
-# Conan
+# Output
 build-*
-CMakeUserPresets.json
+
+# Generated protobufs
+generated/

@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stack/stack.h>
+#include <test2/test2.pb-c.h>
 
 typedef struct Student
 {
@@ -96,6 +97,19 @@ static bool str_is_smaller_than(const void* jValuePtr, const void* pivotValuePtr
     return jNum < pivotNum;
 }
 
+// ReSharper disable once CppParameterMayBeConstPtrOrRef
+static void test2_free_elem(void* elemPtr)
+{
+    const Test2__Test2* test2Ptr = elemPtr;
+    free(test2Ptr->name);
+}
+
+static char* test2_to_string(const void* elemPtr)
+{
+    const Test2__Test2* test2Ptr = elemPtr;
+    return test2Ptr->name;
+}
+
 int main(int argc, char** argv)
 {
     Stack intStack;
@@ -157,6 +171,20 @@ int main(int argc, char** argv)
     stack_quick_sort(&strStack, &str_get_value_ptr, &str_is_smaller_than);
 
     stack_print(&strStack, &str_to_string, true);
+
+    Stack test2Stack;
+    stack_init(&test2Stack, sizeof(Test2__Test2), &test2_free_elem);
+
+    for (size_t i = 0; i < 3; i++)
+    {
+        Test2__Test2 test2;
+        char nameBuffer[32];
+        snprintf(nameBuffer, sizeof(nameBuffer), "Teacher%zu", i);
+        test2.name = strdup(nameBuffer);
+        stack_push(&test2Stack, &test2);
+    }
+
+    stack_print(&test2Stack, &test2_to_string, true);
 
     return 0;
 }
