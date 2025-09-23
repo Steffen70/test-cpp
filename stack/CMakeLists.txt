@@ -15,7 +15,7 @@ file(GLOB_RECURSE SRC_FILES
         src/*.c
 )
 
-add_library(stack STATIC ${SRC_FILES})
+add_library(stack SHARED ${SRC_FILES})
 
 target_include_directories(${PROJECT_NAME}
         PUBLIC

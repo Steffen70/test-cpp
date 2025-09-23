@@ -105,6 +105,19 @@ void stack_print(Stack* s, const to_string toString, const bool shouldFree)
     print_stack(s, shouldFree, false, toString, nullptr);
 }
 
+static char* int_to_string(const void* elemPtr)
+{
+    const int* intPtr = elemPtr;
+    char numStrBuffer[16];
+    snprintf(numStrBuffer, sizeof(numStrBuffer), "%d", *intPtr);
+    return strdup(numStrBuffer);
+}
+
+void stack_print_int(Stack* s)
+{
+    print_stack(s, true, false, &int_to_string, nullptr);
+}
+
 void stack_print_extended(Stack* s, const to_string_extended toString, const bool shouldFree)
 {
     print_stack(s, shouldFree, false, nullptr, toString);

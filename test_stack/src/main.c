@@ -174,5 +174,17 @@ int main()
 
     stack_destroy(&studStack);
 
+    Stack intStack;
+    stack_init(&intStack, sizeof(int), nullptr);
+
+    for (int i = 1; i <= 7; i++)
+    {
+        stack_push(&intStack, &i);
+    }
+
+    stack_print_int(&intStack);
+
+    stack_destroy(&intStack);
+
     return 0;
 }
