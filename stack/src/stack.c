@@ -148,56 +148,68 @@ static void swap(void* value1Ptr, void* value2Ptr, const size_t elemSize)
     memcpy(value2Ptr, buffer, elemSize);
 }
 
-static size_t partition(const Stack* stackPtr, const size_t startIndex, const size_t endIndex, const get_value_ptr getValuePtr, const is_smaller_than isSmallerThan)
+static size_t partition(const Stack* stackPtr, const size_t startIndex, const size_t endIndex, const get_value_ptr getValuePtr, const bool shouldFree, const is_smaller_than isSmallerThan)
 {
     const size_t pivotIndex = endIndex;
     size_t i = startIndex;
 
     char* pivotPtr = get_elem_ptr(stackPtr, pivotIndex);
-    const void* pivotValuePtr = getValuePtr(pivotPtr);
+    void* pivotValuePtr = getValuePtr(pivotPtr);
 
     const size_t elemSize = stackPtr->elemSize;
 
     for (size_t j = startIndex; j <= endIndex - 1; j++)
     {
         char* jPtr = get_elem_ptr(stackPtr, j);
-        if (isSmallerThan(getValuePtr(jPtr), pivotValuePtr))
+        void* currentValuePtr = getValuePtr(jPtr);
+        if (isSmallerThan(currentValuePtr, pivotValuePtr))
         {
             swap(get_elem_ptr(stackPtr, i), jPtr, elemSize);
             i++;
         }
+
+        if (shouldFree)
+        {
+            free(currentValuePtr);
+        }
     }
+
+    if (shouldFree)
+    {
+        free(pivotValuePtr);
+    }
+
     swap(get_elem_ptr(stackPtr, i), pivotPtr, elemSize);
 
     return i;
 }
 
-static void quick_sort(const Stack* stackPtr, const size_t startIndex, const size_t endIndex, const get_value_ptr getValuePtr, const is_smaller_than isSmallerThan)
+static void quick_sort(const Stack* stackPtr, const size_t startIndex, const size_t endIndex, const get_value_ptr getValuePtr, const bool shouldFree, const is_smaller_than isSmallerThan)
 {
     if (endIndex <= startIndex)
     {
         return;
     }
 
-    const size_t pivotIndex = partition(stackPtr, startIndex, endIndex, getValuePtr, isSmallerThan);
+    const size_t pivotIndex = partition(stackPtr, startIndex, endIndex, getValuePtr, shouldFree, isSmallerThan);
 
     if (pivotIndex > startIndex)
     {
-        quick_sort(stackPtr, startIndex, pivotIndex - 1, getValuePtr, isSmallerThan);
+        quick_sort(stackPtr, startIndex, pivotIndex - 1, getValuePtr, shouldFree, isSmallerThan);
     }
 
     if (pivotIndex < endIndex)
     {
-        quick_sort(stackPtr, pivotIndex + 1, endIndex, getValuePtr, isSmallerThan);
+        quick_sort(stackPtr, pivotIndex + 1, endIndex, getValuePtr, shouldFree, isSmallerThan);
     }
 }
 
-void stack_quick_sort(const Stack* s, const get_value_ptr getValuePtr, const is_smaller_than isSmallerThan)
+void stack_quick_sort(const Stack* s, const get_value_ptr getValuePtr, const bool shouldFree, const is_smaller_than isSmallerThan)
 {
     if (s->currentDepth <= 1)
     {
         return;
     }
 
-    quick_sort(s, 0, s->currentDepth - 1, getValuePtr, isSmallerThan);
+    quick_sort(s, 0, s->currentDepth - 1, getValuePtr, shouldFree, isSmallerThan);
 }

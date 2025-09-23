@@ -15,7 +15,7 @@ typedef struct Stack
 typedef char* (*to_string)(const void* elemPtr);
 typedef char* (*to_string_extended)(void* elemPtr, free_elem freeElem);
 typedef bool (*predicate)(const void*);
-typedef const void* (*get_value_ptr)(const void* elemPtr);
+typedef void* (*get_value_ptr)(const void* elemPtr);
 typedef bool (*is_smaller_than)(const void* jValuePtr, const void* pivotValuePtr);
 
 void stack_init(Stack* s, size_t elemSize, free_elem freeElem);
@@ -26,4 +26,4 @@ void stack_print(Stack* s, to_string toString, bool shouldFree);
 void stack_print_extended(Stack* s, to_string_extended toString, bool shouldFree);
 void stack_promote(const Stack* s, size_t elemIndex, size_t elemCount);
 void stack_promote_first(const Stack* s, predicate predicate);
-void stack_quick_sort(const Stack* s, get_value_ptr getValuePtr, is_smaller_than isSmallerThan);
+void stack_quick_sort(const Stack* s, get_value_ptr getValuePtr, bool shouldFree, is_smaller_than isSmallerThan);

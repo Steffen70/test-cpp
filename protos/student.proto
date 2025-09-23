@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package test.stack;
+
+message Student {
+    string name = 1;
+    Subject main_subject = 2;
+    repeated Subject other_subjects = 3;
+}
+
+message Subject {
+    string subject_name = 1;
+    double grade = 2;
+}
