@@ -23,51 +23,56 @@ file(MAKE_DIRECTORY "${GEN_DIR}")
 # Compute expected outputs
 set(GEN_SRCS)
 set(GEN_HDRS)
-foreach(p IN LISTS PROTO_FILES)
+foreach (p IN LISTS PROTO_FILES)
     file(RELATIVE_PATH rel "${PROTO_ROOT}" "${p}")
     get_filename_component(noext "${rel}" NAME_WE)
     get_filename_component(subdir "${rel}" DIRECTORY)
     set(out_dir "${GEN_DIR}/${subdir}")
     list(APPEND GEN_SRCS "${out_dir}/${noext}.pb-c.c")
     list(APPEND GEN_HDRS "${out_dir}/${noext}.pb-c.h")
-endforeach()
+endforeach ()
 
 # Single invocation of protoc-c for all files
 add_custom_command(
-    OUTPUT ${GEN_SRCS} ${GEN_HDRS}
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${GEN_DIR}"
-    COMMAND protoc
-    --proto_path=${PROTO_ROOT}
-    --c_out=${GEN_DIR}
-    ${PROTO_FILES}
-    DEPENDS ${PROTO_FILES}
-    COMMENT "Generating protobuf-c C sources"
-    VERBATIM
+        OUTPUT ${GEN_SRCS} ${GEN_HDRS}
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${GEN_DIR}"
+        COMMAND protoc
+        --proto_path=${PROTO_ROOT}
+        --c_out=${GEN_DIR}
+        ${PROTO_FILES}
+        DEPENDS ${PROTO_FILES}
+        COMMENT "Generating protobuf-c C sources"
+        VERBATIM
 )
 
 # Add generated sources to the target
 add_executable(${PROJECT_NAME}
-    ${SRC_FILES}
-    src/main.c
-    ${GEN_SRCS}
+        ${SRC_FILES}
+        src/main.c
+        ${GEN_SRCS}
+)
+
+target_compile_definitions(${PROJECT_NAME}
+        PRIVATE
+        _XOPEN_SOURCE=700
 )
 
 # Include generated dirs (derive from headers)
 set(GEN_INC_DIRS "")
-foreach(h IN LISTS GEN_HDRS)
+foreach (h IN LISTS GEN_HDRS)
     get_filename_component(d "${h}" DIRECTORY)
     list(APPEND GEN_INC_DIRS "${d}")
-endforeach()
+endforeach ()
 list(REMOVE_DUPLICATES GEN_INC_DIRS)
 
 target_include_directories(${PROJECT_NAME}
-    PRIVATE
-    ${GEN_INC_DIRS}
-    ${PROTOBUFC_INCLUDE_DIRS}
+        PRIVATE
+        ${GEN_INC_DIRS}
+        ${PROTOBUFC_INCLUDE_DIRS}
 )
 
 target_link_libraries(${PROJECT_NAME}
-    PRIVATE
-    ${PROTOBUFC_LIBRARIES}
-    stack
+        PRIVATE
+        ${PROTOBUFC_LIBRARIES}
+        stack
 )

@@ -1,4 +1,3 @@
-#define _XOPEN_SOURCE 700
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -35,6 +34,7 @@ static void stud_free_elem(void* elemPtr)
     }
 }
 
+// ReSharper disable once CppDFAConstantParameter
 static char* string_join(const char* seperatorPtr, char** stringPtrArr, const size_t n)
 {
     size_t strLenArr[n];
@@ -150,7 +150,7 @@ int main()
     stack_init(&studStack, sizeof(Test__Stack__Student), &stud_free_elem);
 
     srand48(time(nullptr));
-    for (size_t i = 0; i < 3; i++)
+    for (size_t i = 0; i < 50; i++)
     {
         Test__Stack__Student stud = TEST__STACK__STUDENT__INIT;
         char nameBuffer[16];
