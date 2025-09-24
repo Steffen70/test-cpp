@@ -2,30 +2,19 @@ import ctypes
 from ._ffi import *
 
 
+def get_value(elem_ptr):
+    return elem_ptr
+
+
 class Stack:
 
-    def __init__(self, elem_size: int, free_elem_fn=None):
+    def __init__(self, elem_size: int):
         self._stack = _CStack()
         self._to_string_callback = None
-        self._to_string_extended_callback = None
-        self._free_elem_callback = None
-        self._get_value_callback = None
         self._is_smaller_callback = None
         self._closed = False
 
-        # Convert free_elem_fn to C callback if provided
-        free_elem_c = None
-        if free_elem_fn:
-            if not callable(free_elem_fn):
-                raise TypeError("free_elem_fn must be callable")
-
-            def _free_adapter(elem_ptr):
-                free_elem_fn(elem_ptr)
-
-            self._free_elem_callback = _free_elem_t(_free_adapter)
-            free_elem_c = self._free_elem_callback
-
-        _lib.stack_init(ctypes.byref(self._stack), ctypes.c_size_t(elem_size), free_elem_c)
+        _lib.stack_init(ctypes.byref(self._stack), ctypes.c_size_t(elem_size), None)
 
     def push(self, value):
         if isinstance(value, (bytes, bytearray)):
@@ -54,38 +43,16 @@ class Stack:
         self._to_string_callback = _to_string_t(_adapter)
         _lib.stack_print(ctypes.byref(self._stack), self._to_string_callback, True)
 
-    def print_extended(self, to_string_extended_fn):
-        if not callable(to_string_extended_fn):
-            raise TypeError("to_string_extended_fn must be callable")
-
-        def _extended_adapter(elem_ptr, free_elem_c_fn):
-            # Wrap the C free function for Python use
-            def python_free_fn(ptr):
-                if free_elem_c_fn:
-                    free_elem_c_fn(ptr)
-
-            result = to_string_extended_fn(elem_ptr, python_free_fn)
-            return _libc.strdup(result.encode("utf-8"))
-
-        self._to_string_extended_callback = _to_string_extended_t(_extended_adapter)
-        _lib.stack_print_extended(ctypes.byref(self._stack), self._to_string_extended_callback, True)
-
-    def sort(self, get_value_fn, is_smaller_fn, should_free=False):
-        if not callable(get_value_fn):
-            raise TypeError("get_value_fn must be callable")
+    def sort(self, is_smaller_fn):
         if not callable(is_smaller_fn):
             raise TypeError("is_smaller_fn must be callable")
-
-        def _get_value_adapter(elem_ptr):
-            return get_value_fn(elem_ptr)
 
         def _is_smaller_adapter(val1_ptr, val2_ptr):
             return is_smaller_fn(val1_ptr, val2_ptr)
 
-        self._get_value_callback = _get_value_ptr_t(_get_value_adapter)
         self._is_smaller_callback = _is_smaller_than_t(_is_smaller_adapter)
 
-        _lib.stack_quick_sort(ctypes.byref(self._stack), self._get_value_callback, should_free, self._is_smaller_callback)
+        _lib.stack_quick_sort(ctypes.byref(self._stack), _get_value_ptr_t(get_value), False, self._is_smaller_callback)
 
     def close(self):
         if not self._closed:

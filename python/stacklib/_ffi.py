@@ -28,12 +28,6 @@ _to_string_t = CFUNCTYPE(c_char_p, c_void_p)
 _lib.stack_print.argtypes = [POINTER(_CStack), _to_string_t, c_bool]
 _lib.stack_print.restype = None
 
-# to_string_extended: char* (*)(void*, free_elem)
-_free_elem_t = CFUNCTYPE(None, c_void_p)
-_to_string_extended_t = CFUNCTYPE(c_char_p, c_void_p, _free_elem_t)
-_lib.stack_print_extended.argtypes = [POINTER(_CStack), _to_string_extended_t, c_bool]
-_lib.stack_print_extended.restype = None
-
 # get_value_ptr: void* (*)(const void*)
 _get_value_ptr_t = CFUNCTYPE(c_void_p, c_void_p)
 
@@ -53,4 +47,4 @@ _libc.strdup.argtypes = [c_char_p]
 _libc.strdup.restype = c_void_p
 
 # Export what the public API needs
-__all__ = ['_CStack', '_lib', '_libc', '_to_string_t', '_to_string_extended_t', '_free_elem_t', '_get_value_ptr_t', '_is_smaller_than_t']
+__all__ = ['_CStack', '_lib', '_libc', '_to_string_t', '_get_value_ptr_t', '_is_smaller_than_t']
