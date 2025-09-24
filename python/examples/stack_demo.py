@@ -1,12 +1,37 @@
 import ctypes
 import sys
 import os
+import random
+from generated import student_pb2
 
 # Add parent directory to path so we can import stacklib
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from stacklib import Stack
 
+def create_random_subject(subject_id: int) -> student_pb2.Subject:
+    subj = student_pb2.Subject()
+    subj.subject_name = f"Subject{subject_id}"
+    subj.grade = 1.0 + random.random() * 5.0
+    return subj
+
+
+random.seed()
+student_list = []
+
+for i in range(50):
+    stud = student_pb2.Student()
+    stud.name = f"Student{i}"
+    stud.main_subject.CopyFrom(create_random_subject(i + 1))
+
+    for s in range(4):
+        subj = create_random_subject((i + 2) * (s + 1))
+        stud.other_subjects.append(subj)
+
+    student_list.append(stud)
+
+print("First:", student_list[0])
+print("Last: ", student_list[-1])
 
 # Demo: push integers
 def int_to_string(elem_ptr):
@@ -27,7 +52,6 @@ def int_is_smaller(val1_ptr, val2_ptr):
     return val1 < val2
 
 
-print("Sorted integer stack:")
 with Stack(elem_size=ctypes.sizeof(ctypes.c_int)) as s:
     for i in reversed(range(1, 8)):
         s.push(ctypes.c_int(i))
@@ -35,24 +59,3 @@ with Stack(elem_size=ctypes.sizeof(ctypes.c_int)) as s:
     s.sort(int_get_value, int_is_smaller, should_free=False)
 
     s.print(int_to_string)
-
-print("Unsorted integer stack:")
-with Stack(elem_size=ctypes.sizeof(ctypes.c_int)) as s:
-    for i in reversed(range(1, 8)):
-        s.push(ctypes.c_int(i))
-
-    s.print(int_to_string)
-
-
-# Demo: push doubles
-def double_to_string(elem_ptr):
-    val = ctypes.cast(elem_ptr, ctypes.POINTER(ctypes.c_double))[0]
-    return f"{val:.2f}"
-
-
-print("Double stack:")
-with Stack(elem_size=ctypes.sizeof(ctypes.c_double)) as s:
-    s.push(ctypes.c_double(3.14))
-    s.push(ctypes.c_double(2.71))
-
-    s.print(double_to_string)
