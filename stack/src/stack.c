@@ -77,6 +77,7 @@ static void print_stack(Stack* s, const bool shouldFree, const bool isRecursion,
 
     if (!stack_pop(s, bufferPtr))
     {
+        free(bufferPtr);
         return;
     }
 
