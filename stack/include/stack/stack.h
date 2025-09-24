@@ -23,7 +23,6 @@ void stack_destroy(const Stack* s);
 void stack_push(Stack* s, const void* valuePtr);
 bool stack_pop(Stack* s, void* bufferPtr);
 void stack_print(Stack* s, to_string toString, bool shouldFree);
-void stack_print_int(Stack* s);
 void stack_print_extended(Stack* s, to_string_extended toString, bool shouldFree);
 void stack_promote(const Stack* s, size_t elemIndex, size_t elemCount);
 void stack_promote_first(const Stack* s, predicate predicate);

@@ -143,6 +143,14 @@ static bool double_is_smaller_than(const void* jValuePtr, const void* pivotValue
     return *(double*)jValuePtr < *(double*)pivotValuePtr;
 }
 
+static char* int_to_string(const void* elemPtr)
+{
+    const int* intPtr = elemPtr;
+    char numStrBuffer[16];
+    snprintf(numStrBuffer, sizeof(numStrBuffer), "%d", *intPtr);
+    return strdup(numStrBuffer);
+}
+
 int main()
 {
     Stack studStack;
@@ -182,7 +190,7 @@ int main()
         stack_push(&intStack, &i);
     }
 
-    stack_print_int(&intStack);
+    stack_print(&intStack, &int_to_string, true);
 
     stack_destroy(&intStack);
 
