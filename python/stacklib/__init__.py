@@ -6,8 +6,9 @@ class Stack:
 
     def __init__(self, elem_size: int):
         self._stack = _CStack()
-        # Keep callback alive
-        self._callback = None
+        self._to_string_callback = None
+        self._get_value_callback = None
+        self._is_smaller_callback = None
         self._closed = False
         _lib.stack_init(ctypes.byref(self._stack), ctypes.c_size_t(elem_size), None)
 
@@ -35,8 +36,25 @@ class Stack:
             # strdup for C to free
             return _libc.strdup(result.encode("utf-8"))
 
-        self._callback = _to_string_t(_adapter)
-        _lib.stack_print(ctypes.byref(self._stack), self._callback, True)
+        self._to_string_callback = _to_string_t(_adapter)
+        _lib.stack_print(ctypes.byref(self._stack), self._to_string_callback, True)
+
+    def sort(self, get_value_fn, is_smaller_fn, should_free=False):
+        if not callable(get_value_fn):
+            raise TypeError("get_value_fn must be callable")
+        if not callable(is_smaller_fn):
+            raise TypeError("is_smaller_fn must be callable")
+
+        def _get_value_adapter(elem_ptr):
+            return get_value_fn(elem_ptr)
+
+        def _is_smaller_adapter(val1_ptr, val2_ptr):
+            return is_smaller_fn(val1_ptr, val2_ptr)
+
+        self._get_value_callback = _get_value_ptr_t(_get_value_adapter)
+        self._is_smaller_callback = _is_smaller_than_t(_is_smaller_adapter)
+
+        _lib.stack_quick_sort(ctypes.byref(self._stack), self._get_value_callback, should_free, self._is_smaller_callback)
 
     def close(self):
         if not self._closed:

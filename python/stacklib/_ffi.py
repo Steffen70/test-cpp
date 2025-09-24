@@ -28,6 +28,16 @@ _to_string_t = CFUNCTYPE(c_char_p, c_void_p)
 _lib.stack_print.argtypes = [POINTER(_CStack), _to_string_t, c_bool]
 _lib.stack_print.restype = None
 
+# get_value_ptr: void* (*)(const void*)
+_get_value_ptr_t = CFUNCTYPE(c_void_p, c_void_p)
+
+# is_smaller_than: bool (*)(const void*, const void*)
+_is_smaller_than_t = CFUNCTYPE(c_bool, c_void_p, c_void_p)
+
+# stack_quick_sort: void stack_quick_sort(const Stack* s, get_value_ptr getValuePtr, bool shouldFree, is_smaller_than isSmallerThan)
+_lib.stack_quick_sort.argtypes = [POINTER(_CStack), _get_value_ptr_t, c_bool, _is_smaller_than_t]
+_lib.stack_quick_sort.restype = None
+
 _lib.stack_destroy.argtypes = [POINTER(_CStack)]
 _lib.stack_destroy.restype = None
 
@@ -37,4 +47,4 @@ _libc.strdup.argtypes = [c_char_p]
 _libc.strdup.restype = c_void_p
 
 # Export what the public API needs
-__all__ = ['_CStack', '_lib', '_libc', '_to_string_t']
+__all__ = ['_CStack', '_lib', '_libc', '_to_string_t', '_get_value_ptr_t', '_is_smaller_than_t']
