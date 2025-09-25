@@ -3,6 +3,7 @@
 
 # Output
 build-*
+__pycache__/
 
 # Generated protobufs
 generated/
