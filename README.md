@@ -1,7 +1,7 @@
 ## Prerequisites
 
 ```bash
-sudo apt install protobuf-c-compiler libprotobuf-c-dev pipenv
+sudo apt install pkg-config protobuf-c-compiler libprotobuf-c-dev pipenv
 
 cd python/
 
